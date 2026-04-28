@@ -19,6 +19,7 @@ export interface UserProfile {
   email: string;
   realm: RealmId | null;
   needs_realm_choice: boolean;
+  locale: LocaleId | null;
   avatar_url: string | null;
   is_admin: boolean;
   created_at: string;
@@ -40,6 +41,7 @@ export interface StoryListItem {
   title: string;
   description: string | null;
   genre: string | null;
+  content_rating: ContentRating | null;
   published: boolean;
   published_version: number;
   watch_starts_count: number;
@@ -199,6 +201,7 @@ export interface SceneMapResponse {
     title: string;
     description: string | null;
     genre: string | null;
+    content_rating: ContentRating | null;
     published_version: number;
     watch_starts_count: number;
     choice_clicks_count: number;
@@ -243,27 +246,80 @@ export interface BookmarkListResponse {
   bookmarks: BookmarkListItem[];
 }
 
+// ── Pagination ──
+
+export interface PaginatedLink {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  current_page: number;
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  links: PaginatedLink[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
+// ── Content Ratings ──
+
+export type ContentRating = "G" | "PG" | "PG-13" | "R" | "NC-17";
+
+export interface ContentRatingDefinition {
+  id: ContentRating;
+  label: string;
+  description: string;
+}
+
 // ── Realm Config ──
 
 export type RealmId = "cosmos" | "wilds";
 
+/** Supported UI locales — matches PHP `chuzi_realms.supported_locales`. */
+export type LocaleId = "en" | "es" | "fr" | "de" | "pt";
+
 export interface RealmDefinition {
   label: string;
   short_label: string;
+  /** Canonical English lexicon (always present). */
   lexicon: Record<string, string>;
+  /** Optional per-locale overrides; missing keys fall through to `lexicon`. */
+  locales?: Partial<Record<LocaleId, Record<string, string>>>;
 }
 
 export interface RealmConfigResponse {
   realms: Record<RealmId, RealmDefinition>;
   fallback_lexicon: Record<string, string>;
+  fallback_locales?: Partial<Record<LocaleId, Record<string, string>>>;
   intro: {
     line1: string;
     line2: string;
   };
+  intro_locales?: Partial<Record<LocaleId, { line1: string; line2: string }>>;
   profile: {
     title: string;
     current_prefix: string;
     switch_prompt: string;
   };
+  profile_locales?: Partial<Record<LocaleId, { title: string; current_prefix: string; switch_prompt: string }>>;
   allowed_realm_ids: RealmId[];
+  supported_locales: LocaleId[];
+  locale_labels?: Partial<Record<LocaleId, string>>;
+}
+
+export interface UpdateLocaleRequest {
+  locale: LocaleId;
+}
+
+export interface UpdateLocaleResponse {
+  locale: LocaleId;
 }
