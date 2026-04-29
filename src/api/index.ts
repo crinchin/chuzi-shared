@@ -2,6 +2,7 @@ import type {
   BookmarkListResponse,
   BookmarkResponse,
   CatalogResponse,
+  CreateStoryRequest,
   EngagementResponse,
   LocaleId,
   LoginRequest,
@@ -14,6 +15,8 @@ import type {
   TrackEngagementRequest,
   UpdateLocaleRequest,
   UpdateLocaleResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
   UpdateRealmRequest,
   UpdateRealmResponse,
   UserProfile,
@@ -134,6 +137,7 @@ export interface ChuziClient {
     index(opts?: { signal?: AbortSignal }): Promise<PaginatedResponse<StoryListItem>>;
     show(id: string, opts?: { signal?: AbortSignal }): Promise<StoryListItem>;
     mine(opts?: { signal?: AbortSignal }): Promise<PaginatedResponse<StoryListItem>>;
+    create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
   };
   watch: {
     sceneMap(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneMapResponse>;
@@ -145,6 +149,7 @@ export interface ChuziClient {
     profile(opts?: { signal?: AbortSignal }): Promise<UserProfile>;
     updateRealm(req: UpdateRealmRequest): Promise<UpdateRealmResponse>;
     updateLocale(req: UpdateLocaleRequest): Promise<UpdateLocaleResponse>;
+    updateProfile(req: UpdateProfileRequest): Promise<UpdateProfileResponse>;
   };
   credits: {
     balance(opts?: { signal?: AbortSignal }): Promise<{ balance: number }>;
@@ -193,6 +198,7 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       index: (opts) => request("GET", "/api/v1/stories", opts),
       show: (id, opts) => request("GET", `/api/v1/stories/${encodeURIComponent(id)}`, opts),
       mine: (opts) => request("GET", "/api/v1/stories/mine", opts),
+      create: (req) => request("POST", "/api/v1/stories", { body: req }),
     },
     watch: {
       sceneMap: (storyId, opts) =>
@@ -208,6 +214,7 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       profile: (opts) => request("GET", "/api/v1/user/profile", opts),
       updateRealm: (req) => request("PUT", "/api/v1/user/realm", { body: req }),
       updateLocale: (req) => request("PUT", "/api/v1/user/locale", { body: req }),
+      updateProfile: (req) => request("PUT", "/api/v1/user/profile", { body: req }),
     },
     credits: {
       balance: (opts) => request("GET", "/api/v1/credits/balance", opts),

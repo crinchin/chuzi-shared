@@ -50,6 +50,10 @@
     "./realms/cosmos/components": {
       "types": "./dist/realms/cosmos/components/index.d.ts",
       "import": "./dist/realms/cosmos/components/index.js"
+    },
+    "./realms/wilds/components": {
+      "types": "./dist/realms/wilds/components/index.d.ts",
+      "import": "./dist/realms/wilds/components/index.js"
     }
   },
   "files": [

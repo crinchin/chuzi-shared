@@ -34,6 +34,14 @@ export interface UpdateRealmResponse {
   user: UserProfile;
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+}
+
+export interface UpdateProfileResponse {
+  user: UserProfile;
+}
+
 // ── Catalog ──
 
 export interface StoryListItem {
@@ -83,6 +91,7 @@ export interface CatalogResponse {
     previews: Record<string, StoryPreview>;
     popular_choices: Record<string, PopularChoice[]>;
     creator_avatars: Record<string, string>;
+    coverboxes: Record<string, string | null>;
     progress: Record<string, StoryProgress>;
   };
 }
@@ -268,6 +277,15 @@ export interface PaginatedResponse<T> {
   prev_page_url: string | null;
   to: number | null;
   total: number;
+}
+
+// ── Story authoring ──
+
+export interface CreateStoryRequest {
+  title: string;
+  description?: string | null;
+  genre?: string | null;
+  content_rating?: ContentRating | null;
 }
 
 // ── Content Ratings ──

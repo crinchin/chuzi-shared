@@ -18,6 +18,7 @@ export default defineConfig({
     "realms/wilds/index": "src/realms/wilds/index.ts",
     "ui/index": "src/ui/index.ts",
     "realms/cosmos/components/index": "src/realms/cosmos/components/index.ts",
+    "realms/wilds/components/index": "src/realms/wilds/components/index.ts",
   },
   format: ["esm"],
   dts: true,
