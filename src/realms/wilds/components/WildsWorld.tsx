@@ -1,8 +1,10 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { ReactNode } from "react";
-import { THEME_TOKENS } from "../../../themes/index.js";
 import { ForestBackdrop } from "./ForestBackdrop.js";
+
+const SKY = "#4a6b58";
+const GROUND_COLOR = "#2e4030";
 
 export interface WildsWorldProps {
   children: ReactNode;
@@ -24,10 +26,11 @@ export function WildsWorld({ children, dpr = [1, 2] }: WildsWorldProps) {
       dpr={dpr}
       gl={{ antialias: true }}
     >
-      <color attach="background" args={[THEME_TOKENS.wilds.bgDeep]} />
-      <fog attach="fog" args={[THEME_TOKENS.wilds.bgDeep, 36, 96]} />
-      <hemisphereLight args={["#cfe9c2", "#1a2a18", 0.85]} />
-      <directionalLight position={[10, 20, 8]} intensity={0.6} />
+      <color attach="background" args={[SKY]} />
+      <fog attach="fog" args={[SKY, 50, 140]} />
+      <ambientLight intensity={0.55} />
+      <hemisphereLight args={["#dff2d4", "#3a5238", 1.1]} />
+      <directionalLight position={[10, 20, 8]} intensity={1.1} />
       <Ground />
       <ForestBackdrop />
       <OrbitControls
@@ -45,7 +48,7 @@ function Ground() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
       <circleGeometry args={[120, 64]} />
-      <meshStandardMaterial color="#1a2a18" roughness={1} />
+      <meshStandardMaterial color={GROUND_COLOR} roughness={1} />
     </mesh>
   );
 }
