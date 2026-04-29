@@ -2,6 +2,8 @@ export { Tree } from "./Tree.js";
 export type { TreeProps } from "./Tree.js";
 export { WildsWorld } from "./WildsWorld.js";
 export type { WildsWorldProps } from "./WildsWorld.js";
+export { ForestBackdrop } from "./ForestBackdrop.js";
+export type { ForestBackdropProps } from "./ForestBackdrop.js";
 export { WildsSandbox } from "./WildsSandbox.js";
 export type { WildsSandboxProps } from "./WildsSandbox.js";
 export { distributeForest } from "./layout.js";
