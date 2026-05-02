@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import type { AtomVisualProps } from "../../index.js";
@@ -9,10 +9,10 @@ export interface TreeProps {
 }
 
 /**
- * One film as a tree. Foliage color is HSL-derived from the realm
- * mapping's hue + intensity. Each tree sways on its own phase so the
- * grove doesn't ripple in lockstep — gives the forest life without
- * per-tree animation state.
+ * A single film-tree with a lush, multi-clustered canopy. Foliage is built
+ * from overlapping dodecahedrons arranged around the crown — reads as a
+ * dense, heavily-branched tree. Trees within a genre clump share the same
+ * hue; brightness scales with popularity.
  */
 export function Tree({ visual, onSelect }: TreeProps) {
   const ref = useRef<Group>(null);
@@ -24,19 +24,50 @@ export function Tree({ visual, onSelect }: TreeProps) {
     ref.current.rotation.z = sway;
   });
 
-  // Trunk height/radius scale together with visual.scale; canopy size
-  // gets a small extra boost from intensity (popularity = lusher canopy).
-  const trunkHeight = 1.2 + visual.scale * 1.6;
-  const trunkRadius = 0.12 + visual.scale * 0.08;
-  const canopyRadius = 0.85 + visual.scale * 0.6 + visual.intensity * 0.4;
-  const canopyHeight = 1.6 + visual.scale * 1.0 + visual.intensity * 0.5;
+  const trunkHeight = 1.6 + visual.scale * 2.4;
+  const trunkRadius = 0.09 + visual.scale * 0.055;
+  const lightness = 52 + visual.intensity * 18;
+  const canopyColor = `hsl(${visual.hue}, 82%, ${lightness}%)`;
+  const trunkColor = "#6b5a45";
 
-  // Wilds palette: shift toward saturated greens, with the realm-mapped
-  // hue offset producing species variation (yellow-oak, pine-cool,
-  // pink-cherry, umber-dead, etc).
-  const lightness = 30 + visual.intensity * 20;
-  const canopyColor = `hsl(${visual.hue}, 55%, ${lightness}%)`;
-  const trunkColor = "#5a4530";
+  const seed = Math.abs(Math.round(visual.position[0] * 127 + visual.position[2] * 311));
+
+  const foliage = useMemo(() => {
+    const clusters: { x: number; y: number; z: number; r: number }[] = [];
+    const crownY = trunkHeight * 0.78;
+    const baseR = 0.65 + visual.scale * 0.5 + visual.intensity * 0.3;
+
+    clusters.push({ x: 0, y: crownY + baseR * 0.35, z: 0, r: baseR });
+    clusters.push({ x: 0, y: crownY + baseR * 0.95, z: 0, r: baseR * 0.55 });
+
+    const mainCount = 5 + Math.floor(visual.scale * 3);
+    for (let i = 0; i < mainCount; i++) {
+      const a = (i / mainCount) * Math.PI * 2 + (seed % 100) * 0.063;
+      const spread = baseR * (0.6 + ((seed + i * 7) % 5) * 0.09);
+      const yOff = ((seed + i * 13) % 7 - 3) * 0.1;
+      const sz = baseR * (0.38 + ((seed + i * 11) % 5) * 0.07);
+      clusters.push({
+        x: Math.cos(a) * spread,
+        y: crownY + yOff,
+        z: Math.sin(a) * spread,
+        r: sz,
+      });
+    }
+
+    const lowerCount = 3 + Math.floor(visual.scale * 2);
+    for (let i = 0; i < lowerCount; i++) {
+      const a = (i / lowerCount) * Math.PI * 2 + (seed % 50) * 0.126;
+      const spread = baseR * 0.85 + 0.25;
+      clusters.push({
+        x: Math.cos(a) * spread,
+        y: crownY - 0.35 - ((seed + i * 17) % 4) * 0.12,
+        z: Math.sin(a) * spread,
+        r: baseR * (0.28 + ((seed + i * 7) % 3) * 0.06),
+      });
+    }
+
+    return clusters;
+  }, [trunkHeight, visual.scale, visual.intensity, seed]);
 
   function handleClick(e: { stopPropagation: () => void }) {
     if (!onSelect) return;
@@ -44,22 +75,20 @@ export function Tree({ visual, onSelect }: TreeProps) {
     onSelect();
   }
 
+  const onClick = onSelect ? handleClick : undefined;
+
   return (
     <group ref={ref} position={visual.position}>
-      <mesh
-        position={[0, trunkHeight / 2, 0]}
-        onClick={onSelect ? handleClick : undefined}
-      >
-        <cylinderGeometry args={[trunkRadius * 0.85, trunkRadius, trunkHeight, 8]} />
-        <meshStandardMaterial color={trunkColor} roughness={0.95} />
+      <mesh position={[0, trunkHeight / 2, 0]} onClick={onClick}>
+        <cylinderGeometry args={[trunkRadius * 0.65, trunkRadius, trunkHeight, 8]} />
+        <meshStandardMaterial color={trunkColor} roughness={0.9} />
       </mesh>
-      <mesh
-        position={[0, trunkHeight + canopyHeight / 2 - 0.2, 0]}
-        onClick={onSelect ? handleClick : undefined}
-      >
-        <coneGeometry args={[canopyRadius, canopyHeight, 10]} />
-        <meshStandardMaterial color={canopyColor} roughness={0.85} />
-      </mesh>
+      {foliage.map((c, i) => (
+        <mesh key={i} position={[c.x, c.y, c.z]} onClick={onClick}>
+          <dodecahedronGeometry args={[c.r, 1]} />
+          <meshStandardMaterial color={canopyColor} roughness={0.7} />
+        </mesh>
+      ))}
     </group>
   );
 }

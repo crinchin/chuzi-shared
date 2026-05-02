@@ -1,10 +1,10 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Stars } from "@react-three/drei";
 import type { ReactNode } from "react";
 import { ForestBackdrop } from "./ForestBackdrop.js";
 
-const SKY = "#4a6b58";
-const GROUND_COLOR = "#2e4030";
+const SKY = "#0e1030";
+const GROUND_COLOR = "#2a5a35";
 
 export interface WildsWorldProps {
   children: ReactNode;
@@ -13,11 +13,10 @@ export interface WildsWorldProps {
 }
 
 /**
- * Wilds environment shell. Wraps an r3f Canvas with a deep-forest ambient
- * background, a soft ground plane, hemispheric lighting (warm sky + cool
- * ground), and a surrounding `ForestBackdrop` so film trees sit *inside*
- * a forest rather than alone on a circle. Mirrors cosmos/World — film
- * atoms render as children, ambient backdrop is provided by the realm.
+ * Wilds environment shell. A lush forest under a cosmic sky — the stars
+ * visible overhead are the same cosmos the director may have just left.
+ * Bright hemisphere + directional lighting keeps the canopy vivid even
+ * against the dark backdrop.
  */
 export function WildsWorld({ children, dpr = [1, 2] }: WildsWorldProps) {
   return (
@@ -27,10 +26,19 @@ export function WildsWorld({ children, dpr = [1, 2] }: WildsWorldProps) {
       gl={{ antialias: true }}
     >
       <color attach="background" args={[SKY]} />
-      <fog attach="fog" args={[SKY, 50, 140]} />
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={["#dff2d4", "#3a5238", 1.1]} />
-      <directionalLight position={[10, 20, 8]} intensity={1.1} />
+      <fog attach="fog" args={[SKY, 70, 180]} />
+      <Stars
+        radius={180}
+        depth={80}
+        count={2500}
+        factor={4}
+        saturation={0.5}
+        fade
+        speed={0.8}
+      />
+      <ambientLight intensity={0.65} />
+      <hemisphereLight args={["#f0f8ff", "#3a5a38", 1.2]} />
+      <directionalLight position={[10, 30, 8]} intensity={1.5} color="#fff5e0" />
       <Ground />
       <ForestBackdrop />
       <OrbitControls
@@ -48,7 +56,7 @@ function Ground() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
       <circleGeometry args={[120, 64]} />
-      <meshStandardMaterial color={GROUND_COLOR} roughness={1} />
+      <meshStandardMaterial color={GROUND_COLOR} roughness={0.9} />
     </mesh>
   );
 }
