@@ -6,3 +6,6 @@ export type { ButtonProps, ButtonVariant } from "./Button.js";
 
 export { FilmCard } from "./FilmCard.js";
 export type { FilmCardProps } from "./FilmCard.js";
+
+export { CreditBadge } from "./CreditBadge.js";
+export type { CreditBadgeProps, CreditRole } from "./CreditBadge.js";

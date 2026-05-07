@@ -158,6 +158,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       content_rating_field_aria: "Audience class",
       select_content_rating: "Select audience class",
       unrated: "Unclassified",
+      viewer_credits: "Fuel Cells",
+      creator_credits: "Stardust",
     },
     locales: {
       es: {
@@ -252,6 +254,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       content_rating_field_aria: "Field guide",
       select_content_rating: "Select field guide",
       unrated: "Unmarked",
+      viewer_credits: "Sap",
+      creator_credits: "Pollen",
     },
     locales: {
       es: {
@@ -345,6 +349,8 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   content_rating_field_aria: "Content rating",
   select_content_rating: "Select rating",
   unrated: "Not Rated",
+  viewer_credits: "Viewer Credits",
+  creator_credits: "Creator Credits",
 };
 
 /**
