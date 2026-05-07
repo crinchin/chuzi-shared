@@ -21,12 +21,9 @@ export interface CreditBadgeProps {
  * colors pull from the realm's theme tokens.
  */
 export function CreditBadge({ role, value, style }: CreditBadgeProps) {
-  const { tokens, t } = useRealmTheme();
+  const { tokens } = useRealmTheme();
 
-  const label =
-    role === "viewer"
-      ? t("viewer_credits", "Viewer Credits")
-      : t("creator_credits", "Creator Credits");
+  const label = role === "viewer" ? "Viewer Credits" : "Creator Credits";
 
   return (
     <View
