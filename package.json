@@ -100,6 +100,8 @@
     "type": "git",
     "url": "https://github.com/chuzi/chuzi-shared.git"
   },
-  "license": "UNLICENSED",
-  "private": true
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
