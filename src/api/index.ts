@@ -30,7 +30,7 @@ import type {
 export type TokenResolver = () => string | null | Promise<string | null>;
 
 export interface ChuziClientConfig {
-  /** e.g. "https://api.dev.chuzi.app" — no trailing slash required. */
+  /** Base URL of the CHUZI API — no trailing slash required. */
   baseUrl: string;
   /** Returns the current bearer token, or null if unauthenticated. */
   getToken?: TokenResolver;
@@ -138,6 +138,7 @@ export interface ChuziClient {
     show(id: string, opts?: { signal?: AbortSignal }): Promise<StoryListItem>;
     mine(opts?: { signal?: AbortSignal }): Promise<PaginatedResponse<StoryListItem>>;
     create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
+    destroy(id: string): Promise<void>;
   };
   watch: {
     sceneMap(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneMapResponse>;
@@ -199,6 +200,7 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       show: (id, opts) => request("GET", `/api/v1/stories/${encodeURIComponent(id)}`, opts),
       mine: (opts) => request("GET", "/api/v1/stories/mine", opts),
       create: (req) => request("POST", "/api/v1/stories", { body: req }),
+      destroy: (id) => request("DELETE", `/api/v1/stories/${encodeURIComponent(id)}`),
     },
     watch: {
       sceneMap: (storyId, opts) =>
