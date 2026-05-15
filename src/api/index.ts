@@ -8,18 +8,27 @@ import type {
   LoginRequest,
   LoginResponse,
   PaginatedResponse,
+  PlayUrlResponse,
   RealmConfigResponse,
+  RegisterMediaRequest,
+  RegisterMediaResponse,
   SaveBookmarkRequest,
   SceneListItem,
   SceneMapResponse,
+  SourceUrlResponse,
   StoryListItem,
   TrackEngagementRequest,
+  TranscodeRequest,
+  TranscodeResponse,
   UpdateLocaleRequest,
   UpdateLocaleResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
   UpdateRealmRequest,
   UpdateRealmResponse,
+  UpdateSceneRequest,
+  UploadUrlRequest,
+  UploadUrlResponse,
   UserProfile,
 } from "../types/index.js";
 
@@ -144,6 +153,14 @@ export interface ChuziClient {
   scenes: {
     index(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem[]>;
     show(id: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem>;
+    update(id: string, req: UpdateSceneRequest): Promise<SceneListItem>;
+  };
+  media: {
+    uploadUrl(req: UploadUrlRequest): Promise<UploadUrlResponse>;
+    register(req: RegisterMediaRequest): Promise<RegisterMediaResponse>;
+    transcode(req: TranscodeRequest): Promise<TranscodeResponse>;
+    playUrl(id: string, opts?: { signal?: AbortSignal }): Promise<PlayUrlResponse>;
+    sourceUrl(id: string, opts?: { signal?: AbortSignal }): Promise<SourceUrlResponse>;
   };
   watch: {
     sceneMap(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneMapResponse>;
@@ -174,7 +191,7 @@ export interface ChuziClient {
  * and lifecycle — pass `getToken` to plug in localStorage / AsyncStorage /
  * SecureStore as appropriate.
  *
- * Surfaces not yet wired: scene-actions, media, exports, admin, reports.
+ * Surfaces not yet wired: scene-actions, exports, admin, reports.
  * Add them here as the migration reaches each surface; the route shapes
  * are documented in chuzi-api/routes/api.php.
  */
@@ -215,6 +232,20 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         }),
       show: (id, opts) =>
         request("GET", `/api/v1/scenes/${encodeURIComponent(id)}`, opts),
+      update: (id, req) =>
+        request("PATCH", `/api/v1/scenes/${encodeURIComponent(id)}`, { body: req }),
+    },
+    media: {
+      uploadUrl: (req) =>
+        request("POST", "/api/v1/media/upload-url", { body: req }),
+      register: (req) =>
+        request("POST", "/api/v1/media/register", { body: req }),
+      transcode: (req) =>
+        request("POST", "/api/v1/media/transcode", { body: req }),
+      playUrl: (id, opts) =>
+        request("GET", `/api/v1/media/${encodeURIComponent(id)}/play`, opts),
+      sourceUrl: (id, opts) =>
+        request("GET", `/api/v1/media/${encodeURIComponent(id)}/source-url`, opts),
     },
     watch: {
       sceneMap: (storyId, opts) =>

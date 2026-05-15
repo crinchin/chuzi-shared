@@ -290,8 +290,83 @@ export interface SceneListItem {
   is_end: boolean;
   color: string | null;
   media_id: string | null;
+  alt_media_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface UpdateSceneRequest {
+  title?: string;
+  order?: number;
+  media_id?: string | null;
+  alt_media_id?: string | null;
+  color?: string | null;
+  is_title?: boolean;
+  is_end?: boolean;
+  choice_style?: string | null;
+  choice_overlay_mode?: string | null;
+  choice_reveal_mode?: string | null;
+  choice_start_time_seconds?: number | null;
+  choice_pause_for_choice?: boolean;
+  choice_end_time_seconds?: number | null;
+}
+
+// ── Media ──
+
+export interface MediaItem {
+  id: string;
+  user_id: string;
+  s3_key: string;
+  source_path: string;
+  output_prefix: string | null;
+  status: "uploaded" | "processing" | "ready" | "error";
+  meta: Record<string, unknown>;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UploadUrlRequest {
+  filename: string;
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  key: string;
+  uploadUrl: string;
+}
+
+export interface RegisterMediaRequest {
+  key: string;
+  s3_key: string;
+  filename: string;
+  content_type?: string;
+  title?: string;
+  file_size?: number;
+}
+
+export interface RegisterMediaResponse extends MediaItem {
+  credits_charged: number;
+  balance: number;
+}
+
+export interface TranscodeRequest {
+  media_id: string;
+}
+
+export interface TranscodeResponse {
+  message: string;
+  job_id: string | null;
+  manifest_path?: string;
+}
+
+export interface PlayUrlResponse {
+  play_url: string;
+  status: string;
+}
+
+export interface SourceUrlResponse {
+  url: string;
 }
 
 // ── Story authoring ──
