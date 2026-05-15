@@ -279,6 +279,21 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+// ── Scenes ──
+
+export interface SceneListItem {
+  id: string;
+  story_id: string;
+  title: string;
+  order: number;
+  is_title: boolean;
+  is_end: boolean;
+  color: string | null;
+  media_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ── Story authoring ──
 
 export interface CreateStoryRequest {

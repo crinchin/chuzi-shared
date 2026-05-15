@@ -10,6 +10,7 @@ import type {
   PaginatedResponse,
   RealmConfigResponse,
   SaveBookmarkRequest,
+  SceneListItem,
   SceneMapResponse,
   StoryListItem,
   TrackEngagementRequest,
@@ -140,6 +141,10 @@ export interface ChuziClient {
     create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
     destroy(id: string): Promise<void>;
   };
+  scenes: {
+    index(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem[]>;
+    show(id: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem>;
+  };
   watch: {
     sceneMap(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneMapResponse>;
     trackEngagement(storyId: string, req: TrackEngagementRequest): Promise<EngagementResponse>;
@@ -169,9 +174,9 @@ export interface ChuziClient {
  * and lifecycle — pass `getToken` to plug in localStorage / AsyncStorage /
  * SecureStore as appropriate.
  *
- * Surfaces not yet wired: scenes, scene-actions, media, exports, admin,
- * reports. Add them here as the migration reaches each surface; the route
- * shapes are documented in chuzi-api/routes/api.php.
+ * Surfaces not yet wired: scene-actions, media, exports, admin, reports.
+ * Add them here as the migration reaches each surface; the route shapes
+ * are documented in chuzi-api/routes/api.php.
  */
 export function createChuziClient(config: ChuziClientConfig): ChuziClient {
   const request = makeRequester(config);
@@ -201,6 +206,15 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       mine: (opts) => request("GET", "/api/v1/stories/mine", opts),
       create: (req) => request("POST", "/api/v1/stories", { body: req }),
       destroy: (id) => request("DELETE", `/api/v1/stories/${encodeURIComponent(id)}`),
+    },
+    scenes: {
+      index: (storyId, opts) =>
+        request("GET", "/api/v1/scenes", {
+          signal: opts?.signal,
+          query: { story_id: storyId },
+        }),
+      show: (id, opts) =>
+        request("GET", `/api/v1/scenes/${encodeURIComponent(id)}`, opts),
     },
     watch: {
       sceneMap: (storyId, opts) =>
