@@ -1,22 +1,32 @@
 import type {
+  AcceptGenerationRequest,
+  AcceptGenerationResponse,
+  AiGenerationShowResponse,
   BookmarkListResponse,
   BookmarkResponse,
   CatalogResponse,
+  CreateSceneRequest,
   CreateStoryRequest,
   EngagementResponse,
+  GenerateImageRequest,
+  GenerateImageResponse,
   LocaleId,
   LoginRequest,
   LoginResponse,
+  MediaItem,
   PaginatedResponse,
   PlayUrlResponse,
   RealmConfigResponse,
   RegisterMediaRequest,
   RegisterMediaResponse,
+  RejectGenerationRequest,
+  RejectGenerationResponse,
   SaveBookmarkRequest,
   SceneListItem,
   SceneMapResponse,
   SourceUrlResponse,
   StoryListItem,
+  StoryStyleResponse,
   TrackEngagementRequest,
   TranscodeRequest,
   TranscodeResponse,
@@ -153,6 +163,7 @@ export interface ChuziClient {
   scenes: {
     index(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem[]>;
     show(id: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem>;
+    create(req: CreateSceneRequest): Promise<SceneListItem>;
     update(id: string, req: UpdateSceneRequest): Promise<SceneListItem>;
   };
   media: {
@@ -182,6 +193,13 @@ export interface ChuziClient {
       limit?: number;
     }): Promise<{ data: unknown[]; next_cursor: string | null }>;
     packs(opts?: { signal?: AbortSignal }): Promise<{ data: unknown[] }>;
+  };
+  ai: {
+    generateImage(req: GenerateImageRequest): Promise<GenerateImageResponse>;
+    show(id: string, opts?: { signal?: AbortSignal }): Promise<AiGenerationShowResponse>;
+    accept(id: string, req: AcceptGenerationRequest): Promise<AcceptGenerationResponse>;
+    reject(id: string, req: RejectGenerationRequest): Promise<RejectGenerationResponse>;
+    storyStyle(storyId: string, opts?: { signal?: AbortSignal }): Promise<StoryStyleResponse>;
   };
 }
 
@@ -232,6 +250,8 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         }),
       show: (id, opts) =>
         request("GET", `/api/v1/scenes/${encodeURIComponent(id)}`, opts),
+      create: (req) =>
+        request("POST", "/api/v1/scenes", { body: req }),
       update: (id, req) =>
         request("PATCH", `/api/v1/scenes/${encodeURIComponent(id)}`, { body: req }),
     },
@@ -271,6 +291,18 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
           query: { cursor: opts?.cursor, limit: opts?.limit },
         }),
       packs: (opts) => request("GET", "/api/v1/credits/packs", opts),
+    },
+    ai: {
+      generateImage: (req) =>
+        request("POST", "/api/v1/ai/generate-image", { body: req }),
+      show: (id, opts) =>
+        request("GET", `/api/v1/ai/generations/${encodeURIComponent(id)}`, opts),
+      accept: (id, req) =>
+        request("POST", `/api/v1/ai/generations/${encodeURIComponent(id)}/accept`, { body: req }),
+      reject: (id, req) =>
+        request("POST", `/api/v1/ai/generations/${encodeURIComponent(id)}/reject`, { body: req }),
+      storyStyle: (storyId, opts) =>
+        request("GET", `/api/v1/ai/stories/${encodeURIComponent(storyId)}/style`, opts),
     },
   };
 }

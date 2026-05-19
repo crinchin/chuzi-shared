@@ -311,6 +311,86 @@ export interface UpdateSceneRequest {
   choice_end_time_seconds?: number | null;
 }
 
+export interface CreateSceneRequest {
+  story_id: string;
+  title: string;
+  order?: number;
+}
+
+// ── AI Generation ──
+
+export type AiGenerationStatus =
+  | "pending"
+  | "generating"
+  | "ready"
+  | "failed"
+  | "accepted"
+  | "rejected";
+
+export interface GenerateImageRequest {
+  story_id: string;
+  scene_id?: string;
+  prompt: string;
+  mood?: string;
+  visual_style?: string;
+  rejection_feedback?: string;
+  previous_generation_id?: string;
+}
+
+export interface AiGeneration {
+  id: string;
+  story_id: string;
+  scene_id: string | null;
+  status: AiGenerationStatus;
+  user_prompt: string;
+  style_context: {
+    mood?: string;
+    visual_style?: string;
+    subject_prompt: string;
+    full_prompt: string;
+    negative_prompt?: string;
+  };
+  preview_url?: string;
+  rejection_feedback: string | null;
+  media_id: string | null;
+  attempt_number: number;
+  credits_charged: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GenerateImageResponse {
+  generation: AiGeneration;
+  balance: { watch: number; create: number };
+}
+
+export interface AiGenerationShowResponse {
+  generation: AiGeneration;
+}
+
+export interface AcceptGenerationRequest {
+  scene_id: string;
+}
+
+export interface AcceptGenerationResponse {
+  generation: AiGeneration;
+  scene: SceneListItem;
+  media: MediaItem;
+}
+
+export interface RejectGenerationRequest {
+  feedback: string;
+}
+
+export interface RejectGenerationResponse {
+  generation: AiGeneration;
+}
+
+export interface StoryStyleResponse {
+  has_style: boolean;
+  style_context: AiGeneration["style_context"] | null;
+}
+
 // ── Media ──
 
 export interface MediaItem {
