@@ -1,6 +1,6 @@
 {
   "name": "@chuzi/shared",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Shared types, realm config, theme tokens, API client, input layer, and realm rendering primitives for CHUZI apps",
   "type": "module",
   "sideEffects": false,
@@ -74,13 +74,27 @@
     "three": ">=0.160.0"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "react-dom": { "optional": true },
-    "react-native": { "optional": true },
-    "react-native-web": { "optional": true },
-    "three": { "optional": true },
-    "@react-three/fiber": { "optional": true },
-    "@react-three/drei": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-native-web": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    },
+    "@react-three/fiber": {
+      "optional": true
+    },
+    "@react-three/drei": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@react-three/drei": "^9.122.0",
