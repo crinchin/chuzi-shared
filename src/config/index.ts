@@ -192,6 +192,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       editor_ai_style_badge: "Signal Style",
       editor_ai_failed: "Signal lost. Try retransmitting.",
       constellation_no_coverbox: "Uncharted",
+      hud_edit_control: "Engage",
+      hud_delete_control: "Jettison",
     },
     locales: {
       es: {
@@ -320,6 +322,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       editor_ai_style_badge: "Growth Style",
       editor_ai_failed: "Growth withered. Try regrowing.",
       constellation_no_coverbox: "Unseen",
+      hud_edit_control: "Tend",
+      hud_delete_control: "Uproot",
     },
     locales: {
       es: {
@@ -447,6 +451,8 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   editor_ai_style_badge: "Style",
   editor_ai_failed: "Generation failed. Please try again.",
   constellation_no_coverbox: "No cover",
+  hud_edit_control: "Edit",
+  hud_delete_control: "Delete",
 };
 
 /**
