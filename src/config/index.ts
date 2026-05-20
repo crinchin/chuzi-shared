@@ -191,6 +191,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       editor_ai_generating_scene: "Planet forming\u2026",
       editor_ai_style_badge: "Signal Style",
       editor_ai_failed: "Signal lost. Try retransmitting.",
+      constellation_no_coverbox: "Uncharted",
     },
     locales: {
       es: {
@@ -318,6 +319,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       editor_ai_generating_scene: "Clearing emerging\u2026",
       editor_ai_style_badge: "Growth Style",
       editor_ai_failed: "Growth withered. Try regrowing.",
+      constellation_no_coverbox: "Unseen",
     },
     locales: {
       es: {
@@ -444,6 +446,7 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   editor_ai_generating_scene: "Scene generating\u2026",
   editor_ai_style_badge: "Style",
   editor_ai_failed: "Generation failed. Please try again.",
+  constellation_no_coverbox: "No cover",
 };
 
 /**

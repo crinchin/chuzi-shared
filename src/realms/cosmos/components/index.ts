@@ -4,6 +4,15 @@ export type { WorldProps } from "./World.js";
 export { Star } from "./Star.js";
 export type { StarProps } from "./Star.js";
 
+export { Constellation } from "./Constellation.js";
+export type {
+  ConstellationProps,
+  ConstellationSceneEntry,
+} from "./Constellation.js";
+
+export { ConstellationEdge } from "./ConstellationEdge.js";
+export type { ConstellationEdgeProps } from "./ConstellationEdge.js";
+
 export { CosmosSandbox } from "./CosmosSandbox.js";
 export type { CosmosSandboxProps } from "./CosmosSandbox.js";
 

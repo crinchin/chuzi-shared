@@ -14,6 +14,7 @@ import type {
   LoginRequest,
   LoginResponse,
   MediaItem,
+  MineResponse,
   PaginatedResponse,
   PlayUrlResponse,
   RealmConfigResponse,
@@ -156,7 +157,7 @@ export interface ChuziClient {
   stories: {
     index(opts?: { signal?: AbortSignal }): Promise<PaginatedResponse<StoryListItem>>;
     show(id: string, opts?: { signal?: AbortSignal }): Promise<StoryListItem>;
-    mine(opts?: { signal?: AbortSignal }): Promise<PaginatedResponse<StoryListItem>>;
+    mine(opts?: { signal?: AbortSignal }): Promise<MineResponse>;
     create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
     destroy(id: string): Promise<void>;
   };

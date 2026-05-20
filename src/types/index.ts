@@ -96,6 +96,13 @@ export interface CatalogResponse {
   };
 }
 
+export interface MineResponse {
+  data: StoryListItem[];
+  meta: {
+    coverboxes: Record<string, string | null>;
+  };
+}
+
 // ── Watch / Scene Map ──
 
 export interface SceneChoice {
