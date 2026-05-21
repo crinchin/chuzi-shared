@@ -28,6 +28,7 @@ import type {
   SourceUrlResponse,
   StoryListItem,
   StoryStyleResponse,
+  TagListResponse,
   TrackEngagementRequest,
   TranscodeRequest,
   TranscodeResponse,
@@ -38,6 +39,7 @@ import type {
   UpdateRealmRequest,
   UpdateRealmResponse,
   UpdateSceneRequest,
+  UpdateStoryRequest,
   UploadUrlRequest,
   UploadUrlResponse,
   UserProfile,
@@ -159,7 +161,11 @@ export interface ChuziClient {
     show(id: string, opts?: { signal?: AbortSignal }): Promise<StoryListItem>;
     mine(opts?: { signal?: AbortSignal }): Promise<MineResponse>;
     create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
+    update(id: string, req: UpdateStoryRequest): Promise<{ data: StoryListItem }>;
     destroy(id: string): Promise<void>;
+  };
+  tags: {
+    index(opts?: { signal?: AbortSignal }): Promise<TagListResponse>;
   };
   scenes: {
     index(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem[]>;
@@ -241,7 +247,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       show: (id, opts) => request("GET", `/api/v1/stories/${encodeURIComponent(id)}`, opts),
       mine: (opts) => request("GET", "/api/v1/stories/mine", opts),
       create: (req) => request("POST", "/api/v1/stories", { body: req }),
+      update: (id, req) => request("PATCH", `/api/v1/stories/${encodeURIComponent(id)}`, { body: req }),
       destroy: (id) => request("DELETE", `/api/v1/stories/${encodeURIComponent(id)}`),
+    },
+    tags: {
+      index: (opts) => request("GET", "/api/v1/tags", opts),
     },
     scenes: {
       index: (storyId, opts) =>

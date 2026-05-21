@@ -1,0 +1,30 @@
+---
+description: What belongs in chuzi-shared vs the other CHUZI repos
+alwaysApply: true
+---
+
+# Separation of Concerns — chuzi-shared
+
+This repo is the **shared library** consumed by both `chuzi-web` and `chuzi-mobile`. It is published as `@chuzi/shared`.
+
+## Belongs here
+
+- TypeScript interfaces/types that mirror `chuzi-api` JSON shapes
+- API client (`createChuziClient`) — thin HTTP wrappers, no page-level state
+- Realm definitions: lexicons (cosmos/wilds/fallback), locale overrides, visual mapping functions (`cosmosMapping`, `wildsMapping`)
+- Shared R3F primitives (Star, Tree, Constellation, ConstellationEdge, layout helpers)
+- Shared UI primitives (CreditBadge, FilmCard, RealmThemeProvider)
+- Content-rating constants, genre lists, and other domain enums
+
+## Does NOT belong here
+
+- Page-level components, routing, or navigation state
+- 3D camera controllers or full-scene compositions (those are viewport-specific)
+- Form components tied to a specific page flow (CreateInline, PublishForm)
+- Direct API calls at import time — the client is instantiated by the consumer
+
+## Conventions
+
+- Every user-visible string must be a lexicon key, added to all three lexicons (cosmos, wilds, FALLBACK_LEXICON) plus locale overrides.
+- After any change: `npm run build && npm version patch|minor|major && npm publish`.
+- New exports bump **minor**; breaking changes bump **major**; bug fixes bump **patch**.

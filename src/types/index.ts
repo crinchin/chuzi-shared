@@ -56,6 +56,7 @@ export interface StoryListItem {
   choice_clicks_count: number;
   scenes_count: number;
   choices_count: number;
+  tags: string[];
   creator: {
     id: string;
     name: string;
@@ -463,6 +464,19 @@ export interface CreateStoryRequest {
   description?: string | null;
   genre?: string | null;
   content_rating?: ContentRating | null;
+}
+
+export interface UpdateStoryRequest {
+  title?: string;
+  description?: string | null;
+  genre?: string | null;
+  content_rating?: ContentRating | null;
+  published?: boolean;
+  tags?: string[];
+}
+
+export interface TagListResponse {
+  data: string[];
 }
 
 // ── Content Ratings ──

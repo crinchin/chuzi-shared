@@ -196,6 +196,13 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       constellation_no_coverbox: "Uncharted",
       hud_edit_control: "Engage",
       hud_delete_control: "Jettison",
+      hud_publish_control: "Launch",
+      create_button: "CREATE",
+      publish_form_heading: "Launch readiness",
+      tags_label: "Signal Tags",
+      tags_placeholder: "Search signal tags\u2026",
+      tags_empty: "No signal tags yet",
+      story_picker_label: "Constellations",
     },
     locales: {
       es: {
@@ -328,6 +335,13 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       constellation_no_coverbox: "Unseen",
       hud_edit_control: "Tend",
       hud_delete_control: "Uproot",
+      hud_publish_control: "Plant",
+      create_button: "CREATE",
+      publish_form_heading: "Planting check",
+      tags_label: "Root Tags",
+      tags_placeholder: "Search root tags\u2026",
+      tags_empty: "No root tags yet",
+      story_picker_label: "Groves",
     },
     locales: {
       es: {
@@ -459,6 +473,13 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   constellation_no_coverbox: "No cover",
   hud_edit_control: "Edit",
   hud_delete_control: "Delete",
+  hud_publish_control: "Publish",
+  create_button: "CREATE",
+  publish_form_heading: "Publish checklist",
+  tags_label: "Tags",
+  tags_placeholder: "Search tags\u2026",
+  tags_empty: "No tags yet",
+  story_picker_label: "Stories",
 };
 
 /**
