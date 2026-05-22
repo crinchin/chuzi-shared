@@ -532,3 +532,34 @@ export interface UpdateLocaleRequest {
 export interface UpdateLocaleResponse {
   locale: LocaleId;
 }
+
+// ── Scene Visibility ──
+
+export interface SceneVisibility {
+  /** Whether the user can navigate to this scene-star. */
+  navigable: boolean;
+  /** Whether the star/edge should render at reduced opacity. */
+  dimmed: boolean;
+}
+
+/**
+ * Compute per-scene navigable/dimmed flags for a constellation.
+ *
+ * Rules:
+ * - If `isCreator` is true, everything is navigable and bright.
+ * - Title scenes are always navigable and bright.
+ * - If the user has watched the ending (`endingSeen`), all scenes unlock.
+ * - Otherwise non-title scenes are locked and dimmed.
+ */
+export function computeSceneVisibility(
+  sceneList: Pick<SceneListItem, "is_title" | "is_end">[],
+  opts: { isCreator: boolean; endingSeen: boolean },
+): SceneVisibility[] {
+  if (opts.isCreator || opts.endingSeen) {
+    return sceneList.map(() => ({ navigable: true, dimmed: false }));
+  }
+  return sceneList.map((scene) => ({
+    navigable: scene.is_title,
+    dimmed: !scene.is_title,
+  }));
+}

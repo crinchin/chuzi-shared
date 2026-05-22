@@ -11,6 +11,8 @@ export interface ConstellationEdgeProps {
   gap?: number;
   intensityA?: number;
   intensityB?: number;
+  /** Reduce opacity to indicate an unwatched connection. */
+  dimmed?: boolean;
 }
 
 /**
@@ -29,6 +31,7 @@ export function ConstellationEdge({
   gap = 0.55,
   intensityA = 0.5,
   intensityB = 0.5,
+  dimmed,
 }: ConstellationEdgeProps) {
   const { points, colorA, colorB, glowA, glowB } = useMemo(() => {
     const a = new THREE.Vector3(...from);
@@ -64,6 +67,9 @@ export function ConstellationEdge({
 
   if (!points || !colorA || !colorB || !glowA || !glowB) return null;
 
+  const glowOpacity = dimmed ? 0.04 : 0.12;
+  const coreOpacity = dimmed ? 0.15 : 0.6;
+
   return (
     <group>
       {/* Outer glow pass */}
@@ -72,7 +78,7 @@ export function ConstellationEdge({
         vertexColors={[glowA, glowB]}
         lineWidth={4}
         transparent
-        opacity={0.12}
+        opacity={glowOpacity}
         toneMapped={false}
       />
       {/* Inner core pass */}
@@ -81,7 +87,7 @@ export function ConstellationEdge({
         vertexColors={[colorA, colorB]}
         lineWidth={1.5}
         transparent
-        opacity={0.6}
+        opacity={coreOpacity}
         toneMapped={false}
       />
     </group>

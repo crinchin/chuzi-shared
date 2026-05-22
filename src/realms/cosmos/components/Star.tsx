@@ -6,6 +6,10 @@ import type { AtomVisualProps } from "../../index.js";
 export interface StarProps {
   visual: AtomVisualProps;
   onSelect?: () => void;
+  /** Reduce brightness and saturation to indicate an unwatched scene. */
+  dimmed?: boolean;
+  /** Non-navigable — suppresses click and lowers brightness further. */
+  locked?: boolean;
 }
 
 /**
@@ -14,7 +18,7 @@ export interface StarProps {
  * breathe in lockstep — gives the field life without per-star animation
  * state.
  */
-export function Star({ visual, onSelect }: StarProps) {
+export function Star({ visual, onSelect, dimmed, locked }: StarProps) {
   const ref = useRef<Mesh>(null);
 
   useFrame(({ clock }) => {
@@ -24,24 +28,34 @@ export function Star({ visual, onSelect }: StarProps) {
     ref.current.scale.setScalar(visual.scale * pulse);
   });
 
-  const lightness = 50 + visual.intensity * 25;
-  const color = `hsl(${visual.hue}, 75%, ${lightness}%)`;
+  const saturation = dimmed || locked ? 25 : 75;
+  const lightness = dimmed || locked
+    ? 25 + visual.intensity * 10
+    : 50 + visual.intensity * 25;
+  const color = `hsl(${visual.hue}, ${saturation}%, ${lightness}%)`;
+
+  const handleClick = locked
+    ? undefined
+    : onSelect
+      ? (e: any) => {
+          e.stopPropagation();
+          onSelect();
+        }
+      : undefined;
 
   return (
     <mesh
       ref={ref}
       position={visual.position}
-      onClick={
-        onSelect
-          ? (e) => {
-              e.stopPropagation();
-              onSelect();
-            }
-          : undefined
-      }
+      onClick={handleClick}
     >
       <sphereGeometry args={[0.5, 16, 16]} />
-      <meshBasicMaterial color={color} toneMapped={false} />
+      <meshBasicMaterial
+        color={color}
+        toneMapped={false}
+        transparent={!!(dimmed || locked)}
+        opacity={dimmed ? 0.35 : locked ? 0.25 : 1}
+      />
     </mesh>
   );
 }

@@ -6,6 +6,10 @@ export interface ConstellationSceneEntry {
   id: string;
   /** Visual with final position already computed by the consumer. */
   visual: AtomVisualProps;
+  /** When true the star renders at reduced brightness/saturation. */
+  dimmed?: boolean;
+  /** When true the star is non-navigable (click suppressed). */
+  locked?: boolean;
 }
 
 export interface ConstellationProps {
@@ -32,6 +36,8 @@ export function Constellation({
         <Star
           key={entry.id}
           visual={entry.visual}
+          dimmed={entry.dimmed}
+          locked={entry.locked}
           onSelect={onSceneSelect ? () => onSceneSelect(i) : undefined}
         />
       ))}
@@ -39,6 +45,7 @@ export function Constellation({
       {scenes.map((entry, i) => {
         if (i === 0) return null;
         const prev = scenes[i - 1];
+        const edgeDimmed = !!(entry.dimmed || prev.dimmed);
         return (
           <ConstellationEdge
             key={`edge-${prev.id}-${entry.id}`}
@@ -48,6 +55,7 @@ export function Constellation({
             hueB={entry.visual.hue}
             intensityA={prev.visual.intensity}
             intensityB={entry.visual.intensity}
+            dimmed={edgeDimmed}
           />
         );
       })}
