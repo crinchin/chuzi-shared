@@ -130,7 +130,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       library_close: "Close Star Chart",
       editor: "Mission Control",
       publish: "Launch",
-      the_end: "Final Orbit",
+      the_end: "The End",
       media_pool: "Cargo Bay",
       scene_graph: "Star Chart",
       watch_path: "Your trajectory",
