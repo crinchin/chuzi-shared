@@ -331,6 +331,8 @@ export interface CreateSceneRequest {
   story_id: string;
   title: string;
   order?: number;
+  is_title?: boolean;
+  is_end?: boolean;
 }
 
 // ── AI Generation ──
