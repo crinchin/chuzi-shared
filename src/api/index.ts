@@ -174,6 +174,7 @@ export interface ChuziClient {
     show(id: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem>;
     create(req: CreateSceneRequest): Promise<SceneListItem>;
     update(id: string, req: UpdateSceneRequest): Promise<SceneListItem>;
+    destroy(id: string): Promise<void>;
   };
   media: {
     uploadUrl(req: UploadUrlRequest): Promise<UploadUrlResponse>;
@@ -273,6 +274,8 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("POST", "/api/v1/scenes", { body: req }),
       update: (id, req) =>
         request("PATCH", `/api/v1/scenes/${encodeURIComponent(id)}`, { body: req }),
+      destroy: (id) =>
+        request("DELETE", `/api/v1/scenes/${encodeURIComponent(id)}`),
     },
     media: {
       uploadUrl: (req) =>
