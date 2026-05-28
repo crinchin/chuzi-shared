@@ -106,7 +106,9 @@ export interface CatalogResponse {
 }
 
 export interface MineResponse {
-  data: StoryListItem[];
+  stories: StoryListItem[];
+  data?: StoryListItem[];
+  progress?: Record<string, StoryProgress>;
   meta: {
     coverboxes: Record<string, string | null>;
   };
@@ -307,6 +309,15 @@ export interface SceneListItem {
   color: string | null;
   media_id: string | null;
   alt_media_id: string | null;
+  media_mode: "text" | "imagery" | "film" | null;
+  text_content: {
+    html: string;
+  } | null;
+  text_style: {
+    font_family?: string | null;
+    text_color?: string | null;
+    background_color?: string | null;
+  } | null;
   created_at: string;
   updated_at: string;
 }
@@ -316,6 +327,15 @@ export interface UpdateSceneRequest {
   order?: number;
   media_id?: string | null;
   alt_media_id?: string | null;
+  media_mode?: "text" | "imagery" | "film" | null;
+  text_content?: {
+    html: string;
+  } | null;
+  text_style?: {
+    font_family?: string | null;
+    text_color?: string | null;
+    background_color?: string | null;
+  } | null;
   color?: string | null;
   is_title?: boolean;
   is_end?: boolean;
