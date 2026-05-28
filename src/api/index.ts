@@ -17,6 +17,7 @@ import type {
   MineResponse,
   PaginatedResponse,
   PlayUrlResponse,
+  PublicDirectorProfile,
   RealmConfigResponse,
   RegisterMediaRequest,
   RegisterMediaResponse,
@@ -152,6 +153,7 @@ export interface ChuziClient {
   };
   catalog: {
     index(opts?: { signal?: AbortSignal }): Promise<CatalogResponse>;
+    byCreator(userId: string, opts?: { signal?: AbortSignal }): Promise<CatalogResponse>;
   };
   config: {
     realms(opts?: { locale?: LocaleId; signal?: AbortSignal }): Promise<RealmConfigResponse>;
@@ -188,6 +190,7 @@ export interface ChuziClient {
   };
   user: {
     profile(opts?: { signal?: AbortSignal }): Promise<UserProfile>;
+    publicProfile(userId: string, opts?: { signal?: AbortSignal }): Promise<PublicDirectorProfile>;
     updateRealm(req: UpdateRealmRequest): Promise<UpdateRealmResponse>;
     updateLocale(req: UpdateLocaleRequest): Promise<UpdateLocaleResponse>;
     updateProfile(req: UpdateProfileRequest): Promise<UpdateProfileResponse>;
@@ -234,6 +237,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
     },
     catalog: {
       index: (opts) => request("GET", "/api/v1/catalog", opts),
+      byCreator: (userId, opts) =>
+        request("GET", "/api/v1/catalog", {
+          signal: opts?.signal,
+          query: { creator_id: userId },
+        }),
     },
     config: {
       realms: (opts) =>
@@ -290,6 +298,8 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
     },
     user: {
       profile: (opts) => request("GET", "/api/v1/user/profile", opts),
+      publicProfile: (userId, opts) =>
+        request("GET", `/api/v1/users/${encodeURIComponent(userId)}/public`, opts),
       updateRealm: (req) => request("PUT", "/api/v1/user/realm", { body: req }),
       updateLocale: (req) => request("PUT", "/api/v1/user/locale", { body: req }),
       updateProfile: (req) => request("PUT", "/api/v1/user/profile", { body: req }),

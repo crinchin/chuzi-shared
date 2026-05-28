@@ -203,6 +203,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       tags_placeholder: "Search signal tags\u2026",
       tags_empty: "No signal tags yet",
       story_picker_label: "Constellations",
+      created_by: "Directed by",
     },
     locales: {
       es: {
@@ -219,6 +220,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
         menu_create_story: "Nuevo sistema estelar",
         film_title_placeholder: "Título del sistema estelar",
         select_genre: "Seleccionar galaxia",
+        created_by: "Dirigido por",
       },
       fr: {
         genre: "Galaxie",
@@ -234,6 +236,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
         menu_create_story: "Nouveau système stellaire",
         film_title_placeholder: "Titre du système stellaire",
         select_genre: "Sélectionner une galaxie",
+        created_by: "Réalisé par",
       },
       de: {
         genre: "Galaxie",
@@ -342,6 +345,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       tags_placeholder: "Search root tags\u2026",
       tags_empty: "No root tags yet",
       story_picker_label: "Groves",
+      created_by: "Tended by",
     },
     locales: {
       es: {
@@ -358,6 +362,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
         menu_create_story: "Nueva arboleda",
         film_title_placeholder: "Título de la arboleda",
         select_genre: "Seleccionar bioma",
+        created_by: "Cuidado por",
       },
       fr: {
         genre: "Biome",
@@ -373,6 +378,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
         menu_create_story: "Nouveau bosquet",
         film_title_placeholder: "Titre du bosquet",
         select_genre: "Sélectionner un biome",
+        created_by: "Soigné par",
       },
       de: {
         genre: "Biom",
@@ -480,6 +486,7 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   tags_placeholder: "Search tags\u2026",
   tags_empty: "No tags yet",
   story_picker_label: "Stories",
+  created_by: "Created by",
 };
 
 /**
@@ -505,6 +512,7 @@ export const FALLBACK_LOCALES: Partial<
     film_title_placeholder: "Título de la película",
     select_genre: "Seleccionar género",
     delete_story_verb: "Eliminar película",
+    created_by: "Creado por",
   },
   fr: {
     genre: "Genre",
@@ -522,6 +530,7 @@ export const FALLBACK_LOCALES: Partial<
     film_title_placeholder: "Titre du film",
     select_genre: "Sélectionner un genre",
     delete_story_verb: "Supprimer le film",
+    created_by: "Créé par",
   },
   de: {
     genre: "Genre",
@@ -533,6 +542,7 @@ export const FALLBACK_LOCALES: Partial<
     menu_create_story: "Geschichte erstellen",
     film_title_placeholder: "Filmtitel",
     select_genre: "Genre auswählen",
+    created_by: "Erstellt von",
   },
   pt: {
     genre: "Gênero",
@@ -544,6 +554,7 @@ export const FALLBACK_LOCALES: Partial<
     menu_create_story: "Criar história",
     film_title_placeholder: "Título do filme",
     select_genre: "Selecionar gênero",
+    created_by: "Criado por",
   },
 };
 

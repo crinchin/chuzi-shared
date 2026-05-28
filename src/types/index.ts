@@ -42,6 +42,14 @@ export interface UpdateProfileResponse {
   user: UserProfile;
 }
 
+export interface PublicDirectorProfile {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  realm: RealmId | null;
+  stories_count: number;
+}
+
 // ── Catalog ──
 
 export interface StoryListItem {
