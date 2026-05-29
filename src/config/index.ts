@@ -267,6 +267,26 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_collapse_all: "Collapse all",
       experience_mapping_forbidden: "You do not have admin access for this section.",
       experience_mapping_bad_json: "JSON must be valid before saving.",
+      experience_mapping_intro:
+        "Edit realm vocabulary from largest to smallest. Generate JSON and paste it in chat for code application.",
+      experience_mapping_dirty: "dirty changes",
+      experience_mapping_export_ready: "No unsaved mapping edits yet.",
+      experience_mapping_export_json: "Generate JSON export",
+      experience_mapping_copy_json: "Copy JSON",
+      experience_mapping_copied: "Copied",
+      experience_mapping_paste_instruction:
+        "Paste this JSON in chat and I will apply it to chuzi-shared.",
+      experience_mapping_export_empty: "Export output appears here.",
+      experience_mapping_group_experience_root: "Experience Root",
+      experience_mapping_group_node_types: "Node Types",
+      experience_mapping_group_scene_structure: "Scene Structure",
+      experience_mapping_group_media: "Media Terms",
+      experience_mapping_group_counts: "Counts and Adjacent Labels",
+      experience_mapping_helper_story: "Largest narrative unit.",
+      experience_mapping_helper_scene: "Contained unit under story.",
+      experience_mapping_helper_scene_choice: "Branching choice in a scene.",
+      experience_mapping_helper_node: "Smallest flow node.",
+      experience_mapping_helper_alt_media: "Smallest related media label.",
     },
     locales: {
       es: {
@@ -472,6 +492,26 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_collapse_all: "Collapse all",
       experience_mapping_forbidden: "You do not have admin access for this section.",
       experience_mapping_bad_json: "JSON must be valid before saving.",
+      experience_mapping_intro:
+        "Edit realm vocabulary from largest to smallest. Generate JSON and paste it in chat for code application.",
+      experience_mapping_dirty: "dirty changes",
+      experience_mapping_export_ready: "No unsaved mapping edits yet.",
+      experience_mapping_export_json: "Generate JSON export",
+      experience_mapping_copy_json: "Copy JSON",
+      experience_mapping_copied: "Copied",
+      experience_mapping_paste_instruction:
+        "Paste this JSON in chat and I will apply it to chuzi-shared.",
+      experience_mapping_export_empty: "Export output appears here.",
+      experience_mapping_group_experience_root: "Experience Root",
+      experience_mapping_group_node_types: "Node Types",
+      experience_mapping_group_scene_structure: "Scene Structure",
+      experience_mapping_group_media: "Media Terms",
+      experience_mapping_group_counts: "Counts and Adjacent Labels",
+      experience_mapping_helper_story: "Largest narrative unit.",
+      experience_mapping_helper_scene: "Contained unit under story.",
+      experience_mapping_helper_scene_choice: "Branching choice in a scene.",
+      experience_mapping_helper_node: "Smallest flow node.",
+      experience_mapping_helper_alt_media: "Smallest related media label.",
     },
     locales: {
       es: {
@@ -676,6 +716,26 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   experience_mapping_collapse_all: "Collapse all",
   experience_mapping_forbidden: "You do not have admin access for this section.",
   experience_mapping_bad_json: "JSON must be valid before saving.",
+  experience_mapping_intro:
+    "Edit realm vocabulary from largest to smallest. Generate JSON and paste it in chat for code application.",
+  experience_mapping_dirty: "dirty changes",
+  experience_mapping_export_ready: "No unsaved mapping edits yet.",
+  experience_mapping_export_json: "Generate JSON export",
+  experience_mapping_copy_json: "Copy JSON",
+  experience_mapping_copied: "Copied",
+  experience_mapping_paste_instruction:
+    "Paste this JSON in chat and I will apply it to chuzi-shared.",
+  experience_mapping_export_empty: "Export output appears here.",
+  experience_mapping_group_experience_root: "Experience Root",
+  experience_mapping_group_node_types: "Node Types",
+  experience_mapping_group_scene_structure: "Scene Structure",
+  experience_mapping_group_media: "Media Terms",
+  experience_mapping_group_counts: "Counts and Adjacent Labels",
+  experience_mapping_helper_story: "Largest narrative unit.",
+  experience_mapping_helper_scene: "Contained unit under story.",
+  experience_mapping_helper_scene_choice: "Branching choice in a scene.",
+  experience_mapping_helper_node: "Smallest flow node.",
+  experience_mapping_helper_alt_media: "Smallest related media label.",
 };
 
 /**
