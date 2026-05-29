@@ -20,6 +20,17 @@ export interface MagicLinkVerifyResponse {
   user: UserProfile;
 }
 
+export interface PasswordLoginRequest {
+  email: string;
+  password: string;
+  device_name?: string;
+}
+
+export interface PasswordLoginResponse {
+  token?: string;
+  user: UserProfile;
+}
+
 // ── User ──
 
 export interface UserProfile {

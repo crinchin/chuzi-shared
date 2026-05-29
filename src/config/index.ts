@@ -308,6 +308,9 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_saved_experience:
         "Saved to current experience. Some labels appear immediately.",
       auth_email_placeholder: "Email",
+      auth_password_input_placeholder: "Password",
+      auth_password_sign_in_button: "Sign In",
+      auth_password_signing_in: "Signing in...",
       auth_sign_in_button: "Send Sign-In Link",
       auth_signing_in: "Sending...",
       auth_magic_link_sent:
@@ -552,6 +555,9 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_saved_experience:
         "Saved to current experience. Some labels appear immediately.",
       auth_email_placeholder: "Email",
+      auth_password_input_placeholder: "Password",
+      auth_password_sign_in_button: "Sign In",
+      auth_password_signing_in: "Signing in...",
       auth_sign_in_button: "Send Sign-In Link",
       auth_signing_in: "Sending...",
       auth_magic_link_sent:
@@ -795,6 +801,9 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   experience_mapping_saved_experience:
     "Saved to current experience. Some labels appear immediately.",
   auth_email_placeholder: "Email",
+  auth_password_input_placeholder: "Password",
+  auth_password_sign_in_button: "Sign In",
+  auth_password_signing_in: "Signing in...",
   auth_sign_in_button: "Send Sign-In Link",
   auth_signing_in: "Sending...",
   auth_magic_link_sent:

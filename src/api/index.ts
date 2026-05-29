@@ -18,6 +18,8 @@ import type {
   MagicLinkVerifyResponse,
   MediaItem,
   MineResponse,
+  PasswordLoginRequest,
+  PasswordLoginResponse,
   PaginatedResponse,
   PlayUrlResponse,
   PublicDirectorProfile,
@@ -144,6 +146,7 @@ function makeRequester(config: ChuziClientConfig) {
 
 export interface ChuziClient {
   auth: {
+    login(req: PasswordLoginRequest): Promise<PasswordLoginResponse>;
     requestMagicLink(req: MagicLinkRequest): Promise<MagicLinkRequestResponse>;
     verifyMagicLink(req: MagicLinkVerifyRequest): Promise<MagicLinkVerifyResponse>;
     logout(): Promise<void>;
@@ -237,6 +240,8 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
 
   return {
     auth: {
+      login: (req) =>
+        request("POST", "/api/v1/auth/login", { body: req }),
       requestMagicLink: (req) =>
         request("POST", "/api/v1/auth/magic-link/request", { body: req }),
       verifyMagicLink: (req) =>
