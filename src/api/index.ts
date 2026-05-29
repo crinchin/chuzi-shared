@@ -5,6 +5,7 @@ import type {
   BookmarkListResponse,
   BookmarkResponse,
   CatalogResponse,
+  CreateSceneActionRequest,
   CreateSceneRequest,
   CreateStoryRequest,
   EngagementResponse,
@@ -24,6 +25,7 @@ import type {
   RejectGenerationRequest,
   RejectGenerationResponse,
   SaveBookmarkRequest,
+  SceneActionItem,
   SceneListItem,
   SceneMapResponse,
   SourceUrlResponse,
@@ -39,6 +41,7 @@ import type {
   UpdateProfileResponse,
   UpdateRealmRequest,
   UpdateRealmResponse,
+  UpdateSceneActionRequest,
   UpdateSceneRequest,
   UpdateStoryRequest,
   UploadUrlRequest,
@@ -176,6 +179,16 @@ export interface ChuziClient {
     update(id: string, req: UpdateSceneRequest): Promise<SceneListItem>;
     destroy(id: string): Promise<void>;
   };
+  sceneActions: {
+    index(opts?: {
+      sceneId?: string;
+      signal?: AbortSignal;
+    }): Promise<SceneActionItem[]>;
+    show(id: string, opts?: { signal?: AbortSignal }): Promise<SceneActionItem>;
+    create(req: CreateSceneActionRequest): Promise<SceneActionItem>;
+    update(id: string, req: UpdateSceneActionRequest): Promise<SceneActionItem>;
+    destroy(id: string): Promise<{ message: string }>;
+  };
   media: {
     uploadUrl(req: UploadUrlRequest): Promise<UploadUrlResponse>;
     register(req: RegisterMediaRequest): Promise<RegisterMediaResponse>;
@@ -276,6 +289,23 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("PATCH", `/api/v1/scenes/${encodeURIComponent(id)}`, { body: req }),
       destroy: (id) =>
         request("DELETE", `/api/v1/scenes/${encodeURIComponent(id)}`),
+    },
+    sceneActions: {
+      index: (opts) =>
+        request("GET", "/api/v1/scene-actions", {
+          signal: opts?.signal,
+          query: opts?.sceneId ? { scene_id: opts.sceneId } : undefined,
+        }),
+      show: (id, opts) =>
+        request("GET", `/api/v1/scene-actions/${encodeURIComponent(id)}`, opts),
+      create: (req) =>
+        request("POST", "/api/v1/scene-actions", { body: req }),
+      update: (id, req) =>
+        request("PATCH", `/api/v1/scene-actions/${encodeURIComponent(id)}`, {
+          body: req,
+        }),
+      destroy: (id) =>
+        request("DELETE", `/api/v1/scene-actions/${encodeURIComponent(id)}`),
     },
     media: {
       uploadUrl: (req) =>

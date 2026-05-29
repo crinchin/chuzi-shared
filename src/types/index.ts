@@ -161,6 +161,8 @@ export interface SceneNode {
   children?: SceneNode[];
 }
 
+export type SceneActionPayload = Record<string, unknown> | unknown[];
+
 export interface SceneMapEntry {
   scene_id: string;
   scene_title: string;
@@ -353,6 +355,39 @@ export interface CreateSceneRequest {
   order?: number;
   is_title?: boolean;
   is_end?: boolean;
+}
+
+export interface SceneActionItem {
+  id: string;
+  scene_id: string;
+  name: string;
+  type: string | null;
+  scene_choice_id: string | null;
+  order: number;
+  duration: number;
+  properties: SceneActionPayload | null;
+  subproperties: SceneActionPayload | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateSceneActionRequest {
+  scene_id: string;
+  name: string;
+  type?: string | null;
+  order?: number;
+  duration?: number;
+  properties?: SceneActionPayload | null;
+  subproperties?: SceneActionPayload | null;
+}
+
+export interface UpdateSceneActionRequest {
+  name?: string;
+  type?: string | null;
+  order?: number;
+  duration?: number;
+  properties?: SceneActionPayload;
+  subproperties?: SceneActionPayload;
 }
 
 // ── AI Generation ──
