@@ -24,12 +24,14 @@ const RealmThemeContext = createContext<RealmTheme | null>(null);
 export interface RealmThemeProviderProps {
   realmId: RealmId | null;
   locale?: LocaleId | null;
+  lexiconRevision?: number;
   children: ReactNode;
 }
 
 export function RealmThemeProvider({
   realmId,
   locale = null,
+  lexiconRevision = 0,
   children,
 }: RealmThemeProviderProps) {
   const value = useMemo<RealmTheme>(() => {
@@ -40,7 +42,7 @@ export function RealmThemeProvider({
       lexicon: lexiconForRealm(realmId, locale),
       t: (key, fallback = "") => translateRealm(realmId, key, fallback, locale),
     };
-  }, [realmId, locale]);
+  }, [realmId, locale, lexiconRevision]);
 
   return (
     <RealmThemeContext.Provider value={value}>

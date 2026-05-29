@@ -26,6 +26,27 @@ export const LOCALE_LABELS: Record<LocaleId, string> = {
 
 export const DEFAULT_LOCALE: LocaleId = "en";
 
+type RealmLexiconOverrides = Partial<Record<RealmId, Record<string, string>>>;
+let runtimeRealmLexiconOverrides: RealmLexiconOverrides = {};
+
+export function getRealmLexiconOverrides(): RealmLexiconOverrides {
+  return {
+    cosmos: runtimeRealmLexiconOverrides.cosmos
+      ? { ...runtimeRealmLexiconOverrides.cosmos }
+      : undefined,
+    wilds: runtimeRealmLexiconOverrides.wilds
+      ? { ...runtimeRealmLexiconOverrides.wilds }
+      : undefined,
+  };
+}
+
+export function setRealmLexiconOverrides(overrides: RealmLexiconOverrides): void {
+  runtimeRealmLexiconOverrides = {
+    cosmos: overrides.cosmos ? { ...overrides.cosmos } : undefined,
+    wilds: overrides.wilds ? { ...overrides.wilds } : undefined,
+  };
+}
+
 export function isSupportedLocale(value: unknown): value is LocaleId {
   return (
     typeof value === "string" &&
@@ -282,6 +303,9 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_group_major_idea: "Major Idea",
       experience_mapping_helper_realm_idea:
         "Highest-level concept for this realm.",
+      experience_mapping_save_experience: "Save to experience",
+      experience_mapping_saved_experience:
+        "Saved to current experience. Some labels appear immediately.",
       experience_mapping_group_experience_root: "Experience Root",
       experience_mapping_group_node_types: "Node Types",
       experience_mapping_group_scene_structure: "Scene Structure",
@@ -512,6 +536,9 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_group_major_idea: "Major Idea",
       experience_mapping_helper_realm_idea:
         "Highest-level concept for this realm.",
+      experience_mapping_save_experience: "Save to experience",
+      experience_mapping_saved_experience:
+        "Saved to current experience. Some labels appear immediately.",
       experience_mapping_group_experience_root: "Experience Root",
       experience_mapping_group_node_types: "Node Types",
       experience_mapping_group_scene_structure: "Scene Structure",
@@ -741,6 +768,9 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   experience_mapping_group_major_idea: "Major Idea",
   experience_mapping_helper_realm_idea:
     "Highest-level concept for this realm.",
+  experience_mapping_save_experience: "Save to experience",
+  experience_mapping_saved_experience:
+    "Saved to current experience. Some labels appear immediately.",
   experience_mapping_group_experience_root: "Experience Root",
   experience_mapping_group_node_types: "Node Types",
   experience_mapping_group_scene_structure: "Scene Structure",
@@ -833,7 +863,12 @@ function resolveRealm(
 ): Record<string, string> {
   const realm = REALMS[realmId];
   const overrides = locale && realm.locales ? realm.locales[locale] : undefined;
-  return overrides ? { ...realm.lexicon, ...overrides } : { ...realm.lexicon };
+  const runtimeOverrides = runtimeRealmLexiconOverrides[realmId];
+  return {
+    ...realm.lexicon,
+    ...(overrides ?? {}),
+    ...(runtimeOverrides ?? {}),
+  };
 }
 
 /**
