@@ -130,6 +130,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       library_close: "Close Star Chart",
       editor: "Mission Control",
       publish: "Launch",
+      experience_realm_idea: "Outer Space",
       the_end: "The End",
       media_pool: "Cargo Bay",
       scene_graph: "Star Chart",
@@ -277,6 +278,10 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_paste_instruction:
         "Paste this JSON in chat and I will apply it to chuzi-shared.",
       experience_mapping_export_empty: "Export output appears here.",
+      experience_mapping_select_realm: "Select realm",
+      experience_mapping_group_major_idea: "Major Idea",
+      experience_mapping_helper_realm_idea:
+        "Highest-level concept for this realm.",
       experience_mapping_group_experience_root: "Experience Root",
       experience_mapping_group_node_types: "Node Types",
       experience_mapping_group_scene_structure: "Scene Structure",
@@ -355,6 +360,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       library_close: "Close Canopy",
       editor: "Heartwood",
       publish: "Plant",
+      experience_realm_idea: "Untamed Nature",
       the_end: "Roots",
       media_pool: "Undergrowth",
       scene_graph: "Canopy",
@@ -502,6 +508,10 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       experience_mapping_paste_instruction:
         "Paste this JSON in chat and I will apply it to chuzi-shared.",
       experience_mapping_export_empty: "Export output appears here.",
+      experience_mapping_select_realm: "Select realm",
+      experience_mapping_group_major_idea: "Major Idea",
+      experience_mapping_helper_realm_idea:
+        "Highest-level concept for this realm.",
       experience_mapping_group_experience_root: "Experience Root",
       experience_mapping_group_node_types: "Node Types",
       experience_mapping_group_scene_structure: "Scene Structure",
@@ -579,6 +589,7 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   library_close: "Close scene tree",
   editor: "Editor",
   publish: "Publish",
+  experience_realm_idea: "Experience Theme",
   the_end: "The End",
   media_pool: "Media Pool",
   scene_graph: "Scene tree",
@@ -726,6 +737,10 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   experience_mapping_paste_instruction:
     "Paste this JSON in chat and I will apply it to chuzi-shared.",
   experience_mapping_export_empty: "Export output appears here.",
+  experience_mapping_select_realm: "Select realm",
+  experience_mapping_group_major_idea: "Major Idea",
+  experience_mapping_helper_realm_idea:
+    "Highest-level concept for this realm.",
   experience_mapping_group_experience_root: "Experience Root",
   experience_mapping_group_node_types: "Node Types",
   experience_mapping_group_scene_structure: "Scene Structure",
