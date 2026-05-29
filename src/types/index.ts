@@ -1,13 +1,22 @@
 // ── Auth ──
 
-export interface LoginRequest {
+export interface MagicLinkRequest {
   email: string;
-  password: string;
-  device_name: string;
+  device_name?: string;
 }
 
-export interface LoginResponse {
+export interface MagicLinkRequestResponse {
+  message: string;
+}
+
+export interface MagicLinkVerifyRequest {
+  email: string;
   token: string;
+  device_name?: string;
+}
+
+export interface MagicLinkVerifyResponse {
+  token?: string;
   user: UserProfile;
 }
 

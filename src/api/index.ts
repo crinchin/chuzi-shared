@@ -12,8 +12,10 @@ import type {
   GenerateImageRequest,
   GenerateImageResponse,
   LocaleId,
-  LoginRequest,
-  LoginResponse,
+  MagicLinkRequest,
+  MagicLinkRequestResponse,
+  MagicLinkVerifyRequest,
+  MagicLinkVerifyResponse,
   MediaItem,
   MineResponse,
   PaginatedResponse,
@@ -142,16 +144,9 @@ function makeRequester(config: ChuziClientConfig) {
 
 export interface ChuziClient {
   auth: {
-    login(req: LoginRequest): Promise<LoginResponse>;
-    register(req: LoginRequest & { name: string }): Promise<LoginResponse>;
+    requestMagicLink(req: MagicLinkRequest): Promise<MagicLinkRequestResponse>;
+    verifyMagicLink(req: MagicLinkVerifyRequest): Promise<MagicLinkVerifyResponse>;
     logout(): Promise<void>;
-    forgotPassword(req: { email: string }): Promise<{ status: string }>;
-    resetPassword(req: {
-      token: string;
-      email: string;
-      password: string;
-      password_confirmation: string;
-    }): Promise<{ status: string }>;
     user(): Promise<UserProfile>;
   };
   catalog: {
@@ -242,11 +237,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
 
   return {
     auth: {
-      login: (req) => request("POST", "/api/v1/auth/login", { body: req }),
-      register: (req) => request("POST", "/api/v1/auth/register", { body: req }),
+      requestMagicLink: (req) =>
+        request("POST", "/api/v1/auth/magic-link/request", { body: req }),
+      verifyMagicLink: (req) =>
+        request("POST", "/api/v1/auth/magic-link/verify", { body: req }),
       logout: () => request("POST", "/api/v1/auth/logout"),
-      forgotPassword: (req) => request("POST", "/api/v1/auth/forgot-password", { body: req }),
-      resetPassword: (req) => request("POST", "/api/v1/auth/reset-password", { body: req }),
       user: () => request("GET", "/api/v1/auth/user"),
     },
     catalog: {
