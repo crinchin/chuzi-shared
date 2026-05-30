@@ -2,6 +2,7 @@
 
 export interface MagicLinkRequest {
   email: string;
+  username?: string;
   device_name?: string;
 }
 
@@ -36,6 +37,7 @@ export interface PasswordLoginResponse {
 export interface UserProfile {
   id: string;
   name: string;
+  username: string;
   email: string;
   realm: RealmId | null;
   needs_realm_choice: boolean;
@@ -56,6 +58,7 @@ export interface UpdateRealmResponse {
 
 export interface UpdateProfileRequest {
   name?: string;
+  username?: string;
 }
 
 export interface UpdateProfileResponse {
