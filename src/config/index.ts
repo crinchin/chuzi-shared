@@ -321,6 +321,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       auth_signing_in: "Sending...",
       auth_magic_link_sent:
         "If that email is registered, a magic link has been sent.",
+      auth_magic_link_sent_signup: "Check your email for your sign-up link.",
       auth_magic_link_verifying: "Verifying magic link...",
       auth_magic_link_verified: "Signed in. Redirecting...",
       auth_magic_link_failed: "This magic link is invalid or expired.",
@@ -579,6 +580,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       auth_signing_in: "Sending...",
       auth_magic_link_sent:
         "If that email is registered, a magic link has been sent.",
+      auth_magic_link_sent_signup: "Check your email for your sign-up link.",
       auth_magic_link_verifying: "Verifying magic link...",
       auth_magic_link_verified: "Signed in. Redirecting...",
       auth_magic_link_failed: "This magic link is invalid or expired.",
@@ -836,6 +838,7 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   auth_signing_in: "Sending...",
   auth_magic_link_sent:
     "If that email is registered, a magic link has been sent.",
+  auth_magic_link_sent_signup: "Check your email for your sign-up link.",
   auth_magic_link_verifying: "Verifying magic link...",
   auth_magic_link_verified: "Signed in. Redirecting...",
   auth_magic_link_failed: "This magic link is invalid or expired.",
