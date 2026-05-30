@@ -21,6 +21,18 @@ export interface MagicLinkVerifyResponse {
   user: UserProfile;
 }
 
+export interface OidcExchangeRequest {
+  code: string;
+  code_verifier: string;
+  redirect_uri: string;
+  device_name?: string;
+}
+
+export interface OidcExchangeResponse {
+  token?: string;
+  user: UserProfile;
+}
+
 export interface PasswordLoginRequest {
   email: string;
   password: string;

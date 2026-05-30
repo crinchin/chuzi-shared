@@ -18,6 +18,8 @@ import type {
   MagicLinkVerifyResponse,
   MediaItem,
   MineResponse,
+  OidcExchangeRequest,
+  OidcExchangeResponse,
   PasswordLoginRequest,
   PasswordLoginResponse,
   PaginatedResponse,
@@ -148,6 +150,7 @@ function makeRequester(config: ChuziClientConfig) {
 export interface ChuziClient {
   auth: {
     login(req: PasswordLoginRequest): Promise<PasswordLoginResponse>;
+    exchangeOidcCode(req: OidcExchangeRequest): Promise<OidcExchangeResponse>;
     requestMagicLink(req: MagicLinkRequest): Promise<MagicLinkRequestResponse>;
     verifyMagicLink(req: MagicLinkVerifyRequest): Promise<MagicLinkVerifyResponse>;
     usernameAvailability(username: string, opts?: { signal?: AbortSignal }): Promise<UsernameAvailabilityResponse>;
@@ -245,6 +248,8 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
     auth: {
       login: (req) =>
         request("POST", "/api/v1/auth/login", { body: req }),
+      exchangeOidcCode: (req) =>
+        request("POST", "/api/v1/auth/oidc/exchange", { body: req }),
       requestMagicLink: (req) =>
         request("POST", "/api/v1/auth/magic-link/request", { body: req }),
       verifyMagicLink: (req) =>
