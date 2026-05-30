@@ -39,6 +39,7 @@ import type {
   TrackEngagementRequest,
   TranscodeRequest,
   TranscodeResponse,
+  UsernameAvailabilityResponse,
   UpdateLocaleRequest,
   UpdateLocaleResponse,
   UpdateProfileRequest,
@@ -149,6 +150,7 @@ export interface ChuziClient {
     login(req: PasswordLoginRequest): Promise<PasswordLoginResponse>;
     requestMagicLink(req: MagicLinkRequest): Promise<MagicLinkRequestResponse>;
     verifyMagicLink(req: MagicLinkVerifyRequest): Promise<MagicLinkVerifyResponse>;
+    usernameAvailability(username: string, opts?: { signal?: AbortSignal }): Promise<UsernameAvailabilityResponse>;
     logout(): Promise<void>;
     user(): Promise<UserProfile>;
   };
@@ -206,6 +208,7 @@ export interface ChuziClient {
     updateRealm(req: UpdateRealmRequest): Promise<UpdateRealmResponse>;
     updateLocale(req: UpdateLocaleRequest): Promise<UpdateLocaleResponse>;
     updateProfile(req: UpdateProfileRequest): Promise<UpdateProfileResponse>;
+    usernameAvailability(username: string, opts?: { signal?: AbortSignal }): Promise<UsernameAvailabilityResponse>;
   };
   credits: {
     balance(opts?: { signal?: AbortSignal }): Promise<{ balance: number }>;
@@ -246,6 +249,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("POST", "/api/v1/auth/magic-link/request", { body: req }),
       verifyMagicLink: (req) =>
         request("POST", "/api/v1/auth/magic-link/verify", { body: req }),
+      usernameAvailability: (username, opts) =>
+        request("GET", "/api/v1/auth/username-availability", {
+          signal: opts?.signal,
+          query: { username },
+        }),
       logout: () => request("POST", "/api/v1/auth/logout"),
       user: () => request("GET", "/api/v1/auth/user"),
     },
@@ -336,6 +344,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       updateRealm: (req) => request("PUT", "/api/v1/user/realm", { body: req }),
       updateLocale: (req) => request("PUT", "/api/v1/user/locale", { body: req }),
       updateProfile: (req) => request("PUT", "/api/v1/user/profile", { body: req }),
+      usernameAvailability: (username, opts) =>
+        request("GET", "/api/v1/user/username-availability", {
+          signal: opts?.signal,
+          query: { username },
+        }),
     },
     credits: {
       balance: (opts) => request("GET", "/api/v1/credits/balance", opts),

@@ -62,6 +62,12 @@ export interface UpdateProfileResponse {
   user: UserProfile;
 }
 
+export interface UsernameAvailabilityResponse {
+  username: string;
+  available: boolean;
+  suggestion?: string;
+}
+
 export interface PublicDirectorProfile {
   id: string;
   name: string;
