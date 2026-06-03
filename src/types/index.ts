@@ -342,8 +342,12 @@ export interface PaginatedResponse<T> {
 
 // ── Scenes ──
 
+export type LineType = "text" | "sound" | "image";
+
 export interface TextLine {
   id: string;
+  type?: LineType;
+  media_id?: string;
   html: string;
   appear_at_ms: number;
   fade_in_ms: number;
@@ -351,6 +355,8 @@ export interface TextLine {
   duration_ms: number;
   position_x?: number;
   position_y?: number;
+  width_pct?: number;
+  height_pct?: number;
   persist?: boolean;
 }
 

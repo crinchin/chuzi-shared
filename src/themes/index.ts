@@ -11,6 +11,7 @@ export interface RealmThemeTokens {
   accentSoft: string;
   text: string;
   muted: string;
+  effectLine: string;
 }
 
 export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
@@ -21,6 +22,7 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     accentSoft: "rgba(126, 184, 255, 0.35)",
     text: "#e8f0ff",
     muted: "rgba(232, 240, 255, 0.65)",
+    effectLine: "#ffb347",
   },
   wilds: {
     bgDeep: "#0d120c",
@@ -29,6 +31,7 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     accentSoft: "rgba(123, 201, 111, 0.35)",
     text: "#eef6ea",
     muted: "rgba(238, 246, 234, 0.7)",
+    effectLine: "#b78aff",
   },
 };
 
