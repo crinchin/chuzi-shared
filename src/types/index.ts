@@ -342,6 +342,20 @@ export interface PaginatedResponse<T> {
 
 // ── Scenes ──
 
+export interface TextLine {
+  id: string;
+  html: string;
+  appear_at_ms: number;
+  fade_in_ms: number;
+  fade_out_ms: number;
+  duration_ms: number;
+}
+
+export interface SceneTextContent {
+  html: string;
+  lines?: TextLine[];
+}
+
 export interface SceneListItem {
   id: string;
   story_id: string;
@@ -353,9 +367,7 @@ export interface SceneListItem {
   media_id: string | null;
   alt_media_id: string | null;
   media_mode: "text" | "imagery" | "film" | null;
-  text_content: {
-    html: string;
-  } | null;
+  text_content: SceneTextContent | null;
   text_style: {
     font_family?: string | null;
     text_color?: string | null;
@@ -371,9 +383,7 @@ export interface UpdateSceneRequest {
   media_id?: string | null;
   alt_media_id?: string | null;
   media_mode?: "text" | "imagery" | "film" | null;
-  text_content?: {
-    html: string;
-  } | null;
+  text_content?: SceneTextContent | null;
   text_style?: {
     font_family?: string | null;
     text_color?: string | null;
