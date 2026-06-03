@@ -349,6 +349,9 @@ export interface TextLine {
   fade_in_ms: number;
   fade_out_ms: number;
   duration_ms: number;
+  position_x?: number;
+  position_y?: number;
+  persist?: boolean;
 }
 
 export interface SceneTextContent {
