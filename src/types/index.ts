@@ -175,6 +175,9 @@ export interface SceneChoice {
   h: number;
   arrow_rotation: number;
   arrow_scale: number;
+  fade_in_ms?: number | null;
+  fade_out_ms?: number | null;
+  duration_ms?: number | null;
   visibility_rules: VisibilityRules | null;
   state_updates: StateUpdate[];
 }
