@@ -173,6 +173,8 @@ export interface SceneChoice {
   y: number;
   w: number;
   h: number;
+  arrow_rotation: number;
+  arrow_scale: number;
   visibility_rules: VisibilityRules | null;
   state_updates: StateUpdate[];
 }
@@ -401,6 +403,7 @@ export interface UpdateSceneRequest {
   color?: string | null;
   is_title?: boolean;
   is_end?: boolean;
+  goto_scene_id?: string | null;
   choice_style?: string | null;
   choice_overlay_mode?: string | null;
   choice_reveal_mode?: string | null;
