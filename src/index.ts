@@ -4,3 +4,4 @@ export * from "./themes/index.js";
 export * from "./api/index.js";
 export * from "./input/index.js";
 export * from "./realms/index.js";
+export * from "./scene-preview.js";

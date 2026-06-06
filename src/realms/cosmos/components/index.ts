@@ -19,3 +19,15 @@ export type { CosmosSandboxProps } from "./CosmosSandbox.js";
 
 export { distributeStars } from "./layout.js";
 export type { Vec3, DistributeOptions } from "./layout.js";
+
+export { ConstellationTitle, computeConstellationBounds } from "./ConstellationTitle.js";
+export type { ConstellationTitleProps, ConstellationBounds } from "./ConstellationTitle.js";
+
+export { StarBillboard } from "./StarBillboard.js";
+export type { StarBillboardProps } from "./StarBillboard.js";
+
+export {
+  DEFAULT_CONSTELLATION_APPEARANCE,
+  mergeConstellationAppearance,
+} from "../appearance.js";
+export type { ConstellationAppearance } from "../appearance.js";

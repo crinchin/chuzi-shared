@@ -95,6 +95,12 @@ export const cosmosMotion: MotionTokens = {
   backDurationMs: 900,
 };
 
+export {
+  DEFAULT_CONSTELLATION_APPEARANCE,
+  mergeConstellationAppearance,
+} from "./appearance.js";
+export type { ConstellationAppearance } from "./appearance.js";
+
 export const cosmosAudio: AudioPalette = {
   // Asset paths are resolved by the host app's asset bundler; chuzi-shared
   // only declares the contract. Replace with CDN URLs at integration time.
