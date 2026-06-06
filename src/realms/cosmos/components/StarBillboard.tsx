@@ -10,11 +10,14 @@ export interface StarBillboardProps {
   dimmed?: boolean;
   focused?: boolean;
   visible?: boolean;
+  /** Control strip rendered flush beneath the preview when focused. */
+  controlsSlot?: ReactNode;
 }
 
 /**
- * Floating preview card and scene label above a star. Label sits beneath
- * the preview image, offset from the star sphere.
+ * Floating preview card and scene label above a star. Unfocused previews
+ * are dimmed; labels stay prominent. Anchor sits at preview bottom-center
+ * so attached controls align with the card edge.
  */
 export function StarBillboard({
   label,
@@ -24,13 +27,18 @@ export function StarBillboard({
   dimmed,
   focused,
   visible = true,
+  controlsSlot,
 }: StarBillboardProps) {
   if (!visible) return null;
 
   const borderColor = focused
-    ? "rgba(126,184,255,0.65)"
-    : "rgba(126,184,255,0.28)";
-  const opacity = dimmed ? 0.45 : focused ? 1 : 0.88;
+    ? "rgba(126,184,255,0.75)"
+    : "rgba(126,184,255,0.22)";
+  const previewOpacity = focused ? 1 : dimmed ? 0.22 : 0.34;
+  const previewFilter = focused
+    ? "brightness(1.08) saturate(1.1)"
+    : "brightness(0.72) saturate(0.65)";
+  const hasControls = !!(focused && controlsSlot);
 
   return (
     <Html
@@ -43,32 +51,49 @@ export function StarBillboard({
       style={{
         pointerEvents: "none",
         userSelect: "none",
-        opacity,
-        transition: "opacity 0.35s ease",
       }}
     >
+      <style>{`
+        @keyframes chuziPreviewFocusIn {
+          0% { opacity: 0.4; transform: scale(0.9); filter: brightness(0.8) saturate(0.7); }
+          55% { opacity: 1; transform: scale(1.05); filter: brightness(1.12) saturate(1.15); }
+          100% { opacity: 1; transform: scale(1); filter: brightness(1.08) saturate(1.1); }
+        }
+        @keyframes chuziPreviewFocusOut {
+          0% { opacity: 1; transform: scale(1); }
+          100% { opacity: ${previewOpacity}; transform: scale(0.96); }
+        }
+      `}</style>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: appearance.labelGap,
+          transform: `translateY(-${appearance.previewHeight / 2}px)`,
         }}
       >
         <div
+          key={focused ? "focused" : "unfocused"}
           style={{
             width: appearance.previewWidth,
             height: appearance.previewHeight,
-            borderRadius: 8,
+            borderRadius: hasControls ? "8px 8px 0 0" : 8,
             overflow: "hidden",
             border: `1px solid ${borderColor}`,
+            borderBottom: hasControls ? "none" : `1px solid ${borderColor}`,
             background: "rgba(4,7,13,0.92)",
             boxShadow: focused
-              ? "0 0 24px rgba(126,184,255,0.35)"
+              ? "0 0 28px rgba(126,184,255,0.45), 0 4px 24px rgba(0,0,0,0.5)"
               : "0 4px 20px rgba(0,0,0,0.55)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            opacity: previewOpacity,
+            filter: previewFilter,
+            transition: "border-color 0.35s ease, box-shadow 0.35s ease",
+            animation: focused
+              ? "chuziPreviewFocusIn 0.48s cubic-bezier(0.34, 1.45, 0.64, 1) forwards"
+              : "chuziPreviewFocusOut 0.32s ease forwards",
           }}
         >
           {previewImageUrl ? (
@@ -96,27 +121,31 @@ export function StarBillboard({
           )}
         </div>
 
-        {focused ? (
+        {hasControls ? (
           <div
             style={{
               width: appearance.previewWidth,
-              height: appearance.controlsGridHeight,
+              pointerEvents: "auto",
               flexShrink: 0,
             }}
-          />
+          >
+            {controlsSlot}
+          </div>
         ) : null}
 
         <div
           style={{
+            marginTop: appearance.labelGap,
             fontSize: appearance.labelFontSize,
             fontWeight: 700,
             letterSpacing: appearance.labelLetterSpacing,
             textTransform: "uppercase",
-            color: focused ? "rgba(232,240,255,0.95)" : "rgba(232,240,255,0.72)",
+            color: "rgba(232,240,255,0.96)",
             textAlign: "center",
-            textShadow: "0 2px 12px rgba(0,0,0,0.95)",
+            textShadow:
+              "0 0 18px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.25)",
             whiteSpace: "nowrap",
-            maxWidth: appearance.previewWidth + 40,
+            maxWidth: appearance.previewWidth + 48,
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}

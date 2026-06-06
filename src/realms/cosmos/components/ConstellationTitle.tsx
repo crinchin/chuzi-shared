@@ -38,16 +38,23 @@ export interface ConstellationTitleProps {
   title: string;
   bounds: ConstellationBounds;
   appearance: ConstellationAppearance;
+  /** World position of the title (first) scene — arc starts here. */
+  arcFrom?: [number, number, number];
+  /** World position of the end scene — arc ends here. */
+  arcTo?: [number, number, number];
 }
 
+const WORLD_TO_SVG = 58;
+
 /**
- * Rainbow arc title floating above the constellation — always readable,
- * never occluding the stars beneath.
+ * Vintage cartography-style ocean label arcing from title scene to end scene.
  */
 export function ConstellationTitle({
   title,
   bounds,
   appearance,
+  arcFrom,
+  arcTo,
 }: ConstellationTitleProps) {
   const gradientId = useId().replace(/:/g, "");
   const pathId = `arc-${gradientId}`;
@@ -55,9 +62,32 @@ export function ConstellationTitle({
   if (!title.trim()) return null;
 
   const span = Math.max(bounds.spanX, bounds.spanZ);
-  const svgWidth = Math.max(360, Math.round(span * 52));
-  const svgHeight = 80;
-  const arcPath = `M ${svgWidth * 0.04} ${svgHeight * 0.82} Q ${svgWidth * 0.5} ${svgHeight * 0.08} ${svgWidth * 0.96} ${svgHeight * 0.82}`;
+  const svgWidth = Math.max(420, Math.round(span * WORLD_TO_SVG + 80));
+  const svgHeight = 110;
+
+  const centerX = svgWidth / 2;
+  const arcY = svgHeight * 0.88;
+  const arcPeak = svgHeight * 0.06;
+
+  let arcStartX = svgWidth * 0.04;
+  let arcEndX = svgWidth * 0.96;
+
+  if (arcFrom && arcTo) {
+    const [fromX] = arcFrom;
+    const [toX] = arcTo;
+    arcStartX = centerX + (fromX - bounds.center[0]) * WORLD_TO_SVG;
+    arcEndX = centerX + (toX - bounds.center[0]) * WORLD_TO_SVG;
+    arcStartX = Math.max(12, Math.min(arcStartX, svgWidth - 12));
+    arcEndX = Math.max(12, Math.min(arcEndX, svgWidth - 12));
+    if (arcStartX > arcEndX) {
+      const swap = arcStartX;
+      arcStartX = arcEndX;
+      arcEndX = swap;
+    }
+  }
+
+  const arcMidX = (arcStartX + arcEndX) / 2;
+  const arcPath = `M ${arcStartX} ${arcY} Q ${arcMidX} ${arcPeak} ${arcEndX} ${arcY}`;
 
   return (
     <Billboard
@@ -84,20 +114,24 @@ export function ConstellationTitle({
         >
           <defs>
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#7eb8ff" />
-              <stop offset="30%" stopColor="#b8a0ff" />
-              <stop offset="55%" stopColor="#ffb8e8" />
-              <stop offset="78%" stopColor="#ffd47e" />
-              <stop offset="100%" stopColor="#7eb8ff" />
+              <stop offset="0%" stopColor="#8ab4c8" />
+              <stop offset="35%" stopColor="#c8d8e4" />
+              <stop offset="65%" stopColor="#e8dcc8" />
+              <stop offset="100%" stopColor="#8ab4c8" />
             </linearGradient>
             <path id={pathId} d={arcPath} fill="none" />
           </defs>
           <text
             fill={`url(#${gradientId})`}
+            fontFamily="'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif"
             fontSize={appearance.titleFontSize}
-            fontWeight={800}
+            fontWeight={700}
+            fontStyle="italic"
             letterSpacing={appearance.titleLetterSpacing}
             opacity={appearance.titleOpacity}
+            stroke="rgba(20,40,60,0.35)"
+            strokeWidth={0.6}
+            paintOrder="stroke fill"
           >
             <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
               {title.toUpperCase()}

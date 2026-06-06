@@ -28,6 +28,8 @@ export interface ConstellationSceneEntry {
   locked?: boolean;
   /** Highlight this star's billboard (focused traversal). */
   focused?: boolean;
+  /** Control strip slot — rendered beneath preview when focused. */
+  controlsSlot?: ReactNode;
 }
 
 export interface ConstellationEdgeEntry {
@@ -89,6 +91,8 @@ export function Constellation({
           title={storyTitle}
           bounds={bounds}
           appearance={appearance}
+          arcFrom={scenes[0]?.visual.position}
+          arcTo={scenes[scenes.length - 1]?.visual.position}
         />
       ) : null}
 
@@ -110,6 +114,7 @@ export function Constellation({
               previewContent={entry.previewContent}
               dimmed={entry.dimmed}
               focused={entry.focused}
+              controlsSlot={entry.controlsSlot}
               visible={showOverlays}
             />
           ) : null}

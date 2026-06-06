@@ -36,12 +36,12 @@ export interface ConstellationAppearance {
 }
 
 export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
-  titleFontSize: 15,
-  titleOpacity: 0.48,
-  titleColor: "#e8f0ff",
-  titleLetterSpacing: 4,
-  titleYOffset: 14,
-  titleDistanceFactor: 18,
+  titleFontSize: 34,
+  titleOpacity: 0.82,
+  titleColor: "#c8dce8",
+  titleLetterSpacing: 6,
+  titleYOffset: 8,
+  titleDistanceFactor: 12,
   htmlZIndexRange: [8, 0],
 
   previewWidth: 148,
@@ -49,7 +49,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   previewOffsetY: 2.4,
   labelFontSize: 13,
   labelLetterSpacing: 1.2,
-  labelGap: 14,
+  labelGap: 10,
   controlsGridHeight: 92,
   billboardDistanceFactor: 10,
 
