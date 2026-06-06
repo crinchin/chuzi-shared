@@ -19,9 +19,9 @@ export interface ConstellationEdgeEntry {
 }
 
 export interface ConstellationProps {
-  /** Scene entries in order (title first, end last), already positioned. */
+  /** Scene entries with positions already computed by the consumer. */
   scenes: ConstellationSceneEntry[];
-  /** Optional explicit edges. When provided, replaces sequential rendering. */
+  /** Explicit story-flow edges (goto + choice). No implicit sequential links. */
   edges?: ConstellationEdgeEntry[];
   onSceneSelect?: (index: number) => void;
 }
@@ -34,12 +34,11 @@ export interface ConstellationProps {
  * The consumer provides scenes with positions already computed so that
  * overlay logic (camera targeting, focus rings) can use the same positions.
  *
- * When `edges` is provided, the component renders from the explicit graph
- * (supporting Y-forks for choices) instead of sequential order.
+ * Only renders edges from the explicit graph (goto + choice links).
  */
 export function Constellation({
   scenes,
-  edges,
+  edges = [],
   onSceneSelect,
 }: ConstellationProps) {
   const sceneMap = new Map(scenes.map((s, i) => [s.id, { entry: s, index: i }]));
@@ -50,21 +49,11 @@ export function Constellation({
     type: ConstellationEdgeEntry["type"];
   }[] = [];
 
-  if (edges && edges.length > 0) {
-    for (const edge of edges) {
-      const src = sceneMap.get(edge.source);
-      const tgt = sceneMap.get(edge.target);
-      if (src && tgt) {
-        resolvedEdges.push({ from: src.entry, to: tgt.entry, type: edge.type });
-      }
-    }
-  } else {
-    for (let i = 1; i < scenes.length; i++) {
-      resolvedEdges.push({
-        from: scenes[i - 1],
-        to: scenes[i],
-        type: "sequential",
-      });
+  for (const edge of edges) {
+    const src = sceneMap.get(edge.source);
+    const tgt = sceneMap.get(edge.target);
+    if (src && tgt) {
+      resolvedEdges.push({ from: src.entry, to: tgt.entry, type: edge.type });
     }
   }
 
@@ -82,7 +71,6 @@ export function Constellation({
 
       {resolvedEdges.map(({ from, to, type }) => {
         const edgeDimmed = !!(from.dimmed || to.dimmed);
-        const variant = type === "go_to_scene" ? "dotted" : "solid";
         return (
           <ConstellationEdge
             key={`edge-${from.id}-${to.id}-${type}`}
@@ -93,7 +81,6 @@ export function Constellation({
             intensityA={from.visual.intensity}
             intensityB={to.visual.intensity}
             dimmed={edgeDimmed}
-            variant={variant}
           />
         );
       })}
