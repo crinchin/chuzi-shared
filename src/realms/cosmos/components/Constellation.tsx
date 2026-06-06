@@ -44,19 +44,27 @@ export function Constellation({
 }: ConstellationProps) {
   const sceneMap = new Map(scenes.map((s, i) => [s.id, { entry: s, index: i }]));
 
-  const resolvedEdges: { from: ConstellationSceneEntry; to: ConstellationSceneEntry }[] = [];
+  const resolvedEdges: {
+    from: ConstellationSceneEntry;
+    to: ConstellationSceneEntry;
+    type: ConstellationEdgeEntry["type"];
+  }[] = [];
 
   if (edges && edges.length > 0) {
     for (const edge of edges) {
       const src = sceneMap.get(edge.source);
       const tgt = sceneMap.get(edge.target);
       if (src && tgt) {
-        resolvedEdges.push({ from: src.entry, to: tgt.entry });
+        resolvedEdges.push({ from: src.entry, to: tgt.entry, type: edge.type });
       }
     }
   } else {
     for (let i = 1; i < scenes.length; i++) {
-      resolvedEdges.push({ from: scenes[i - 1], to: scenes[i] });
+      resolvedEdges.push({
+        from: scenes[i - 1],
+        to: scenes[i],
+        type: "sequential",
+      });
     }
   }
 
@@ -72,11 +80,12 @@ export function Constellation({
         />
       ))}
 
-      {resolvedEdges.map(({ from, to }) => {
+      {resolvedEdges.map(({ from, to, type }) => {
         const edgeDimmed = !!(from.dimmed || to.dimmed);
+        const variant = type === "go_to_scene" ? "dotted" : "solid";
         return (
           <ConstellationEdge
-            key={`edge-${from.id}-${to.id}`}
+            key={`edge-${from.id}-${to.id}-${type}`}
             from={from.visual.position}
             to={to.visual.position}
             hueA={from.visual.hue}
@@ -84,6 +93,7 @@ export function Constellation({
             intensityA={from.visual.intensity}
             intensityB={to.visual.intensity}
             dimmed={edgeDimmed}
+            variant={variant}
           />
         );
       })}
