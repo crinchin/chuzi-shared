@@ -4,12 +4,17 @@
  * saved experience / appearance templates.
  */
 export interface ConstellationAppearance {
-  /** Ghost film title spanning the constellation. */
+  /** Rainbow arc title above the constellation (SVG px). */
   titleFontSize: number;
   titleOpacity: number;
   titleColor: string;
   titleLetterSpacing: number;
+  /** World-space lift above constellation center. */
   titleYOffset: number;
+  /** Html distance factor for the arc title billboard. */
+  titleDistanceFactor: number;
+  /** DOM z-index ceiling for constellation Html overlays (keep below editor). */
+  htmlZIndexRange: [number, number];
 
   /** Per-star preview card + label. */
   previewWidth: number;
@@ -18,6 +23,8 @@ export interface ConstellationAppearance {
   labelFontSize: number;
   labelLetterSpacing: number;
   labelGap: number;
+  /** Reserved space below preview for the 2×2 HUD control grid (px). */
+  controlsGridHeight: number;
   billboardDistanceFactor: number;
 
   /** Camera — floating-in-space slide between stars. */
@@ -29,11 +36,13 @@ export interface ConstellationAppearance {
 }
 
 export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
-  titleFontSize: 2.8,
-  titleOpacity: 0.14,
+  titleFontSize: 15,
+  titleOpacity: 0.48,
   titleColor: "#e8f0ff",
-  titleLetterSpacing: 0.35,
-  titleYOffset: 1.2,
+  titleLetterSpacing: 4,
+  titleYOffset: 14,
+  titleDistanceFactor: 18,
+  htmlZIndexRange: [8, 0],
 
   previewWidth: 148,
   previewHeight: 96,
@@ -41,6 +50,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   labelFontSize: 13,
   labelLetterSpacing: 1.2,
   labelGap: 14,
+  controlsGridHeight: 92,
   billboardDistanceFactor: 10,
 
   cameraDefaultOffset: [0, 4, 12],

@@ -1,4 +1,5 @@
-import { Text } from "@react-three/drei";
+import { useId } from "react";
+import { Billboard, Html } from "@react-three/drei";
 import type { ConstellationAppearance } from "../appearance.js";
 
 export interface ConstellationBounds {
@@ -40,33 +41,70 @@ export interface ConstellationTitleProps {
 }
 
 /**
- * Large ghostly film title draped across the constellation footprint.
+ * Rainbow arc title floating above the constellation — always readable,
+ * never occluding the stars beneath.
  */
 export function ConstellationTitle({
   title,
   bounds,
   appearance,
 }: ConstellationTitleProps) {
+  const gradientId = useId().replace(/:/g, "");
+  const pathId = `arc-${gradientId}`;
+
   if (!title.trim()) return null;
 
+  const span = Math.max(bounds.spanX, bounds.spanZ);
+  const svgWidth = Math.max(360, Math.round(span * 52));
+  const svgHeight = 80;
+  const arcPath = `M ${svgWidth * 0.04} ${svgHeight * 0.82} Q ${svgWidth * 0.5} ${svgHeight * 0.08} ${svgWidth * 0.96} ${svgHeight * 0.82}`;
+
   return (
-    <Text
+    <Billboard
       position={[
         bounds.center[0],
         bounds.center[1] + appearance.titleYOffset,
         bounds.center[2],
       ]}
-      rotation={[-Math.PI / 2, 0, 0]}
-      fontSize={appearance.titleFontSize}
-      color={appearance.titleColor}
-      fillOpacity={appearance.titleOpacity}
-      anchorX="center"
-      anchorY="middle"
-      maxWidth={Math.max(bounds.spanX, bounds.spanZ) * 1.35}
-      letterSpacing={appearance.titleLetterSpacing}
-      textAlign="center"
     >
-      {title.toUpperCase()}
-    </Text>
+      <Html
+        center
+        transform
+        distanceFactor={appearance.titleDistanceFactor}
+        zIndexRange={appearance.htmlZIndexRange}
+        occlude={false}
+        style={{ pointerEvents: "none", userSelect: "none" }}
+      >
+        <svg
+          width={svgWidth}
+          height={svgHeight}
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          style={{ overflow: "visible", display: "block" }}
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#7eb8ff" />
+              <stop offset="30%" stopColor="#b8a0ff" />
+              <stop offset="55%" stopColor="#ffb8e8" />
+              <stop offset="78%" stopColor="#ffd47e" />
+              <stop offset="100%" stopColor="#7eb8ff" />
+            </linearGradient>
+            <path id={pathId} d={arcPath} fill="none" />
+          </defs>
+          <text
+            fill={`url(#${gradientId})`}
+            fontSize={appearance.titleFontSize}
+            fontWeight={800}
+            letterSpacing={appearance.titleLetterSpacing}
+            opacity={appearance.titleOpacity}
+          >
+            <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+              {title.toUpperCase()}
+            </textPath>
+          </text>
+        </svg>
+      </Html>
+    </Billboard>
   );
 }

@@ -44,6 +44,8 @@ export interface ConstellationProps {
   /** Explicit story-flow edges (goto + choice). No implicit sequential links. */
   edges?: ConstellationEdgeEntry[];
   appearance?: Partial<ConstellationAppearance>;
+  /** When false, hide Html billboards and arc title (e.g. while editor is open). */
+  showOverlays?: boolean;
   onSceneSelect?: (index: number) => void;
 }
 
@@ -57,6 +59,7 @@ export function Constellation({
   storyTitle,
   edges = [],
   appearance: appearanceOverrides,
+  showOverlays = true,
   onSceneSelect,
 }: ConstellationProps) {
   const appearance = mergeConstellationAppearance(appearanceOverrides);
@@ -81,7 +84,7 @@ export function Constellation({
 
   return (
     <group>
-      {storyTitle && bounds ? (
+      {showOverlays && storyTitle && bounds ? (
         <ConstellationTitle
           title={storyTitle}
           bounds={bounds}
@@ -98,7 +101,8 @@ export function Constellation({
             onSelect={onSceneSelect ? () => onSceneSelect(i) : undefined}
           />
 
-          {entry.label || entry.previewImageUrl || entry.previewContent ? (
+          {showOverlays &&
+          (entry.label || entry.previewImageUrl || entry.previewContent) ? (
             <StarBillboard
               label={entry.label ?? ""}
               appearance={appearance}
@@ -106,6 +110,7 @@ export function Constellation({
               previewContent={entry.previewContent}
               dimmed={entry.dimmed}
               focused={entry.focused}
+              visible={showOverlays}
             />
           ) : null}
         </group>

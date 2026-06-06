@@ -9,6 +9,7 @@ export interface StarBillboardProps {
   previewContent?: ReactNode;
   dimmed?: boolean;
   focused?: boolean;
+  visible?: boolean;
 }
 
 /**
@@ -22,7 +23,10 @@ export function StarBillboard({
   previewContent,
   dimmed,
   focused,
+  visible = true,
 }: StarBillboardProps) {
+  if (!visible) return null;
+
   const borderColor = focused
     ? "rgba(126,184,255,0.65)"
     : "rgba(126,184,255,0.28)";
@@ -32,7 +36,10 @@ export function StarBillboard({
     <Html
       position={[0, appearance.previewOffsetY, 0]}
       center
+      transform
       distanceFactor={appearance.billboardDistanceFactor}
+      zIndexRange={appearance.htmlZIndexRange}
+      occlude={false}
       style={{
         pointerEvents: "none",
         userSelect: "none",
@@ -88,6 +95,16 @@ export function StarBillboard({
             )
           )}
         </div>
+
+        {focused ? (
+          <div
+            style={{
+              width: appearance.previewWidth,
+              height: appearance.controlsGridHeight,
+              flexShrink: 0,
+            }}
+          />
+        ) : null}
 
         <div
           style={{
