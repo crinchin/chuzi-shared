@@ -8,6 +8,7 @@ export { Constellation } from "./Constellation.js";
 export type {
   ConstellationProps,
   ConstellationSceneEntry,
+  ConstellationEdgeEntry,
 } from "./Constellation.js";
 
 export { ConstellationEdge } from "./ConstellationEdge.js";
