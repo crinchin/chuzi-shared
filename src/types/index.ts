@@ -387,6 +387,8 @@ export interface SceneListItem {
     text_color?: string | null;
     background_color?: string | null;
   } | null;
+  goto_scene_id?: string | null;
+  choice_end_time_seconds?: number | null;
   created_at: string;
   updated_at: string;
 }
