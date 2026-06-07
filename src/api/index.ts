@@ -276,6 +276,8 @@ export interface ChuziClient {
     accept(id: string, req: AcceptGenerationRequest): Promise<AcceptGenerationResponse>;
     reject(id: string, req: RejectGenerationRequest): Promise<RejectGenerationResponse>;
     storyStyle(storyId: string, opts?: { signal?: AbortSignal }): Promise<StoryStyleResponse>;
+    storyEstimate(req: import("../types/index.js").AiStoryEstimateRequest): Promise<import("../types/index.js").AiStoryEstimateResponse>;
+    storyGenerate(req: import("../types/index.js").AiStoryGenerateRequest): Promise<import("../types/index.js").AiStoryGenerateResponse>;
   };
 }
 
@@ -452,6 +454,10 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("POST", `/api/v1/ai/generations/${encodeURIComponent(id)}/reject`, { body: req }),
       storyStyle: (storyId, opts) =>
         request("GET", `/api/v1/ai/stories/${encodeURIComponent(storyId)}/style`, opts),
+      storyEstimate: (req) =>
+        request("POST", "/api/v1/ai/story/estimate", { body: req }),
+      storyGenerate: (req) =>
+        request("POST", "/api/v1/ai/story/generate", { body: req }),
     },
   };
 }

@@ -607,6 +607,52 @@ export interface StoryStyleResponse {
   style_context: AiGeneration["style_context"] | null;
 }
 
+// ── Chuzi AI (Bedrock short-story generation) ──
+
+export interface AiStoryScenePayload {
+  title: string;
+  text: string;
+  font_family: string;
+  text_color: string;
+  background_color: string;
+  scene_color: string | null;
+}
+
+export interface AiStoryEstimateRequest {
+  answers: Record<string, string>;
+}
+
+export interface AiStoryTokenEstimate {
+  input_tokens: number;
+  output_tokens: number;
+  credits_needed: number;
+}
+
+export interface AiStoryEstimateResponse {
+  estimate: AiStoryTokenEstimate;
+  balance: CreditBalance;
+  can_afford: boolean;
+}
+
+export interface AiStoryGenerateRequest {
+  answers: Record<string, string>;
+}
+
+export interface AiStoryGenerationResult {
+  id: string;
+  title: string;
+  scenes: AiStoryScenePayload[];
+  input_tokens: number;
+  output_tokens: number;
+  credits_charged: number;
+  model_id: string;
+}
+
+export interface AiStoryGenerateResponse {
+  generation: AiStoryGenerationResult;
+  balance: CreditBalance;
+}
+
 // ── Media ──
 
 export interface MediaItem {
