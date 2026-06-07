@@ -17,8 +17,26 @@ export type { ConstellationEdgeProps } from "./ConstellationEdge.js";
 export { CosmosSandbox } from "./CosmosSandbox.js";
 export type { CosmosSandboxProps } from "./CosmosSandbox.js";
 
-export { distributeStars } from "./layout.js";
-export type { Vec3, DistributeOptions } from "./layout.js";
+export {
+  distributeStars,
+  distributeConstellationAnchors,
+  computeConstellationScenePositions,
+  constellationFootprintRadius,
+  COSMOS_SCENE_LEVEL_SPACING,
+  COSMOS_SCENE_BRANCH_SPACING,
+  COSMOS_CONSTELLATION_GAP_SCENES,
+  COSMOS_DEFAULT_FOOTPRINT_RADIUS,
+  COSMOS_CONSTELLATION_VISUAL_PADDING,
+} from "./layout.js";
+export type {
+  Vec3,
+  DistributeOptions,
+  ConstellationLayoutScene,
+  ConstellationLayoutNode,
+  ConstellationLayoutGraph,
+  ConstellationAnchorInput,
+  ConstellationAnchorOptions,
+} from "./layout.js";
 
 export { ConstellationTitle, computeConstellationBounds } from "./ConstellationTitle.js";
 export type {
