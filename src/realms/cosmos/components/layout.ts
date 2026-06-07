@@ -50,10 +50,13 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** World-space gap between adjacent tree levels along +Z (chronological depth). */
-export const COSMOS_SCENE_LEVEL_SPACING = 11;
+/** World-space gap between parent and child along +Z (chronological depth). */
+export const COSMOS_SCENE_LEVEL_SPACING = 6;
 
-/** Branch spread multiplier for tree_graph x offsets. */
+/** Lateral gap between sibling branches at the same parent. */
+export const COSMOS_BRANCH_SIBLING_SPACING = 4;
+
+/** @deprecated API x multiplier — 3D layout uses parent-relative BFS instead. */
 export const COSMOS_SCENE_BRANCH_SPACING = 1.6;
 
 /** Maximum distance between two connected scene stars (fallback spine only). */
@@ -188,6 +191,22 @@ function clampEdgeLength(
   ]);
 }
 
+function buildChildrenByParent(
+  edges: ConstellationLayoutEdge[],
+): Map<string, string[]> {
+  const childrenByParent = new Map<string, string[]>();
+
+  for (const edge of edges) {
+    const kids = childrenByParent.get(edge.source) ?? [];
+    if (!kids.includes(edge.target)) {
+      kids.push(edge.target);
+    }
+    childrenByParent.set(edge.source, kids);
+  }
+
+  return childrenByParent;
+}
+
 function buildParentByChild(
   ordered: ConstellationLayoutScene[],
   edges: ConstellationLayoutEdge[],
@@ -214,11 +233,83 @@ function sceneLevelJitter(sceneId: string): number {
   return (hashSceneId(sceneId, "y") - 0.5) * 1.2;
 }
 
+function layoutFromGraphEdges(
+  ordered: ConstellationLayoutScene[],
+  edges: ConstellationLayoutEdge[],
+  root: ConstellationLayoutScene,
+  anchor: Vec3,
+): Map<string, Vec3> {
+  const positions = new Map<string, Vec3>();
+  const sceneById = new Map(ordered.map((scene) => [scene.id, scene]));
+  const orderIndex = new Map(ordered.map((scene, idx) => [scene.id, idx]));
+
+  positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
+
+  const childrenByParent = buildChildrenByParent(edges);
+  for (const kids of childrenByParent.values()) {
+    kids.sort(
+      (a, b) => (orderIndex.get(a) ?? 0) - (orderIndex.get(b) ?? 0),
+    );
+  }
+
+  const visited = new Set<string>([root.id]);
+  const queue = [root.id];
+
+  while (queue.length > 0) {
+    const parentId = queue.shift()!;
+    const parentPos = positions.get(parentId);
+    if (!parentPos) continue;
+
+    const kids = childrenByParent.get(parentId) ?? [];
+    kids.forEach((childId, idx) => {
+      if (visited.has(childId) || !sceneById.has(childId)) return;
+
+      const branchOffset =
+        (idx - (kids.length - 1) / 2) * COSMOS_BRANCH_SIBLING_SPACING;
+      positions.set(childId, [
+        parentPos[0] + branchOffset,
+        parentPos[1] + sceneLevelJitter(childId),
+        parentPos[2] + COSMOS_SCENE_LEVEL_SPACING,
+      ]);
+      visited.add(childId);
+      queue.push(childId);
+    });
+  }
+
+  let maxContentZ = anchor[2];
+  for (const [sceneId, pos] of positions) {
+    if (sceneById.get(sceneId)?.is_end) continue;
+    maxContentZ = Math.max(maxContentZ, pos[2]);
+  }
+
+  for (const scene of ordered) {
+    if (!scene.is_end) continue;
+    positions.set(scene.id, [
+      anchor[0],
+      anchor[1] + sceneLevelJitter(scene.id),
+      maxContentZ + COSMOS_SCENE_LEVEL_SPACING,
+    ]);
+  }
+
+  let spineLevel = 0;
+  for (const scene of ordered) {
+    if (positions.has(scene.id)) continue;
+    spineLevel += 1;
+    positions.set(scene.id, [
+      anchor[0],
+      anchor[1] + sceneLevelJitter(scene.id),
+      anchor[2] + spineLevel * COSMOS_SCENE_LEVEL_SPACING,
+    ]);
+  }
+
+  return positions;
+}
+
 /**
  * Scene positions relative to the title star at the constellation anchor.
- * When a tree_graph is present, level maps to +Z depth (chronological "after")
- * and x spreads branches laterally. Without a graph, scenes fall back to a
- * linear spine along +Z.
+ * When story-flow edges exist, each child sits one +Z step from its parent
+ * with compact sibling spread on X. Without edges, scenes use a golden-angle
+ * fallback spine.
  */
 export function computeConstellationScenePositions(
   scenes: ConstellationLayoutScene[],
@@ -232,43 +323,13 @@ export function computeConstellationScenePositions(
   const root =
     ordered.find((scene) => scene.is_title) ??
     ordered[0];
-  positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
-
-  const nodeById = new Map(
-    (graph?.nodes ?? []).map((node) => [node.id, node]),
-  );
-
-  if (nodeById.size > 0) {
-    const rootNode = nodeById.get(root.id);
-    const rootX = rootNode?.x ?? 0;
-
-    for (const scene of ordered) {
-      if (scene.id === root.id) continue;
-      const node = nodeById.get(scene.id);
-      if (!node) continue;
-
-      positions.set(scene.id, [
-        anchor[0] + (node.x - rootX) * COSMOS_SCENE_BRANCH_SPACING,
-        anchor[1] + sceneLevelJitter(scene.id),
-        anchor[2] + node.level * COSMOS_SCENE_LEVEL_SPACING,
-      ]);
-    }
-
-    let fallbackLevel = 0;
-    for (const scene of ordered) {
-      if (positions.has(scene.id)) continue;
-      fallbackLevel += 1;
-      positions.set(scene.id, [
-        anchor[0],
-        anchor[1] + sceneLevelJitter(scene.id),
-        anchor[2] + fallbackLevel * COSMOS_SCENE_LEVEL_SPACING,
-      ]);
-    }
-
-    return positions;
-  }
 
   const edges = graph?.edges ?? [];
+  if (edges.length > 0) {
+    return layoutFromGraphEdges(ordered, edges, root, anchor);
+  }
+
+  positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
   const parentByChild = edges.length > 0
     ? buildParentByChild(ordered, edges)
     : new Map<string, string>();

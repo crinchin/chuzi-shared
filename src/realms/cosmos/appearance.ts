@@ -22,6 +22,8 @@ export interface ConstellationAppearance {
   previewOffsetY: number;
   labelFontSize: number;
   labelLetterSpacing: number;
+  /** Max width for scene labels beneath preview cards (px). */
+  labelMaxWidth: number;
   labelGap: number;
   /** Reserved space below preview for the 2×2 HUD control grid (px). */
   controlsGridHeight: number;
@@ -49,6 +51,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   previewOffsetY: 2.4,
   labelFontSize: 13,
   labelLetterSpacing: 1.2,
+  labelMaxWidth: 240,
   labelGap: 10,
   controlsGridHeight: 92,
   billboardDistanceFactor: 10,

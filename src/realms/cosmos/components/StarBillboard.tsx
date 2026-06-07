@@ -144,10 +144,13 @@ export function StarBillboard({
             textAlign: "center",
             textShadow:
               "0 0 18px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.25)",
-            whiteSpace: "nowrap",
-            maxWidth: appearance.previewWidth + 48,
+            whiteSpace: "normal",
+            lineHeight: 1.2,
+            maxWidth: appearance.labelMaxWidth,
             overflow: "hidden",
-            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
           }}
         >
           {label}

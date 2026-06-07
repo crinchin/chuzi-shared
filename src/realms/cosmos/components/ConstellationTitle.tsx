@@ -94,7 +94,7 @@ export function ConstellationTitle({
 
   if (!title.trim()) return null;
 
-  const span = Math.max(bounds.spanX, bounds.spanZ);
+  const titlePos = arcFrom ?? bounds.center;
   const minArcSpan = Math.max(
     300,
     estimateTitlePathWidth(
@@ -103,10 +103,13 @@ export function ConstellationTitle({
       appearance.titleLetterSpacing,
     ),
   );
+
+  const endOffsetX =
+    arcFrom && arcTo ? (arcTo[0] - arcFrom[0]) * WORLD_TO_SVG : 0;
+  const arcSpanNeeded = Math.max(minArcSpan, Math.abs(endOffsetX) + 48);
   const svgWidth = Math.max(
     420,
-    Math.round(span * WORLD_TO_SVG + 80),
-    Math.ceil(minArcSpan + ARC_HORIZONTAL_PAD * 2),
+    Math.ceil(arcSpanNeeded + ARC_HORIZONTAL_PAD * 2),
   );
   const svgHeight = 110;
   const viewPadX = 28;
@@ -120,10 +123,8 @@ export function ConstellationTitle({
   let arcEndX = centerX + minArcSpan / 2;
 
   if (arcFrom && arcTo) {
-    const [fromX] = arcFrom;
-    const [toX] = arcTo;
-    arcStartX = centerX + (fromX - bounds.center[0]) * WORLD_TO_SVG;
-    arcEndX = centerX + (toX - bounds.center[0]) * WORLD_TO_SVG;
+    arcStartX = centerX;
+    arcEndX = centerX + endOffsetX;
     if (arcStartX > arcEndX) {
       const swap = arcStartX;
       arcStartX = arcEndX;
@@ -215,9 +216,9 @@ export function ConstellationTitle({
   return (
     <Billboard
       position={[
-        bounds.center[0],
-        bounds.center[1] + appearance.titleYOffset,
-        bounds.center[2],
+        titlePos[0],
+        titlePos[1] + appearance.titleYOffset,
+        titlePos[2],
       ]}
     >
       <Html
