@@ -64,6 +64,19 @@ export interface ConstellationTitleProps {
 }
 
 const WORLD_TO_SVG = 58;
+const ARC_HORIZONTAL_PAD = 72;
+
+/** Rough path length needed for arched uppercase title typography. */
+function estimateTitlePathWidth(
+  title: string,
+  fontSize: number,
+  letterSpacing: number,
+): number {
+  const chars = title.trim().length;
+  if (chars === 0) return 0;
+  const glyphWidth = fontSize * 0.62;
+  return chars * glyphWidth + Math.max(0, chars - 1) * letterSpacing + 56;
+}
 
 /**
  * Vintage cartography-style ocean label arcing from title scene to end scene.
@@ -82,14 +95,26 @@ export function ConstellationTitle({
   if (!title.trim()) return null;
 
   const span = Math.max(bounds.spanX, bounds.spanZ);
-  const svgWidth = Math.max(420, Math.round(span * WORLD_TO_SVG + 80));
+  const minArcSpan = Math.max(
+    300,
+    estimateTitlePathWidth(
+      title,
+      appearance.titleFontSize,
+      appearance.titleLetterSpacing,
+    ),
+  );
+  const svgWidth = Math.max(
+    420,
+    Math.round(span * WORLD_TO_SVG + 80),
+    Math.ceil(minArcSpan + ARC_HORIZONTAL_PAD * 2),
+  );
   const svgHeight = 110;
+  const viewPadX = 28;
+  const viewPadY = 10;
 
   const centerX = svgWidth / 2;
   const arcY = svgHeight * 0.88;
   const arcPeak = svgHeight * 0.06;
-
-  const minArcSpan = Math.max(240, title.trim().length * 15);
 
   let arcStartX = centerX - minArcSpan / 2;
   let arcEndX = centerX + minArcSpan / 2;
@@ -112,11 +137,12 @@ export function ConstellationTitle({
     }
   }
 
-  arcStartX = Math.max(12, Math.min(arcStartX, svgWidth - 12));
-  arcEndX = Math.max(12, Math.min(arcEndX, svgWidth - 12));
-  if (arcEndX - arcStartX < minArcSpan * 0.65) {
-    arcStartX = Math.max(12, centerX - minArcSpan / 2);
-    arcEndX = Math.min(svgWidth - 12, centerX + minArcSpan / 2);
+  const arcMargin = ARC_HORIZONTAL_PAD / 2;
+  arcStartX = Math.max(arcMargin, arcStartX);
+  arcEndX = Math.min(svgWidth - arcMargin, arcEndX);
+  if (arcEndX - arcStartX < minArcSpan) {
+    arcStartX = centerX - minArcSpan / 2;
+    arcEndX = centerX + minArcSpan / 2;
   }
 
   const arcMidX = (arcStartX + arcEndX) / 2;
@@ -135,7 +161,7 @@ export function ConstellationTitle({
     <svg
       width={svgWidth}
       height={svgHeight}
-      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      viewBox={`${-viewPadX} ${-viewPadY} ${svgWidth + viewPadX * 2} ${svgHeight + viewPadY}`}
       style={{
         overflow: "visible",
         display: "block",
