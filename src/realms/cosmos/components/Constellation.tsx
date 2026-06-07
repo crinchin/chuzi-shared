@@ -9,6 +9,7 @@ import { ConstellationEdge } from "./ConstellationEdge.js";
 import {
   ConstellationTitle,
   computeConstellationBounds,
+  type ConstellationStoryOverlay,
 } from "./ConstellationTitle.js";
 import { StarBillboard } from "./StarBillboard.js";
 
@@ -43,6 +44,8 @@ export interface ConstellationProps {
   scenes: ConstellationSceneEntry[];
   /** Film title rendered as ghost typography across the group. */
   storyTitle?: string;
+  /** Director credit, rating, and genre beneath the arched title. */
+  storyOverlay?: ConstellationStoryOverlay;
   /** Explicit story-flow edges (goto + choice). No implicit sequential links. */
   edges?: ConstellationEdgeEntry[];
   appearance?: Partial<ConstellationAppearance>;
@@ -59,6 +62,7 @@ export interface ConstellationProps {
 export function Constellation({
   scenes,
   storyTitle,
+  storyOverlay,
   edges = [],
   appearance: appearanceOverrides,
   showOverlays = true,
@@ -93,6 +97,7 @@ export function Constellation({
           appearance={appearance}
           arcFrom={scenes[0]?.visual.position}
           arcTo={scenes[scenes.length - 1]?.visual.position}
+          storyOverlay={storyOverlay}
         />
       ) : null}
 

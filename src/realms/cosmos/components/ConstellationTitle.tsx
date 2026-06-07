@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { Billboard, Html } from "@react-three/drei";
 import type { ConstellationAppearance } from "../appearance.js";
 
@@ -34,6 +34,22 @@ export function computeConstellationBounds(
   };
 }
 
+export interface ConstellationStoryOverlay {
+  /** Localized prefix, e.g. "Chosen by". */
+  chosenByPrefix: string;
+  directorName?: string | null;
+  directorAvatarUrl?: string | null;
+  contentRating?: string | null;
+  genre?: string | null;
+  /** Shown between rating and genre. */
+  ratingGenreSeparator?: string;
+  /** When true the arched title is clickable. */
+  editable?: boolean;
+  onEditClick?: () => void;
+  /** Accessible label for the editable title control. */
+  editAriaLabel?: string;
+}
+
 export interface ConstellationTitleProps {
   title: string;
   bounds: ConstellationBounds;
@@ -42,6 +58,7 @@ export interface ConstellationTitleProps {
   arcFrom?: [number, number, number];
   /** World position of the end scene — arc ends here. */
   arcTo?: [number, number, number];
+  storyOverlay?: ConstellationStoryOverlay;
 }
 
 const WORLD_TO_SVG = 58;
@@ -55,6 +72,7 @@ export function ConstellationTitle({
   appearance,
   arcFrom,
   arcTo,
+  storyOverlay,
 }: ConstellationTitleProps) {
   const gradientId = useId().replace(/:/g, "");
   const pathId = `arc-${gradientId}`;
@@ -89,6 +107,70 @@ export function ConstellationTitle({
   const arcMidX = (arcStartX + arcEndX) / 2;
   const arcPath = `M ${arcStartX} ${arcY} Q ${arcMidX} ${arcPeak} ${arcEndX} ${arcY}`;
 
+  const editable = !!(storyOverlay?.editable && storyOverlay.onEditClick);
+  const hasDirector = !!(
+    storyOverlay?.directorName && storyOverlay.directorName.trim()
+  );
+  const hasRatingGenre = !!(
+    storyOverlay?.contentRating || storyOverlay?.genre
+  );
+  const showOverlay = hasDirector || hasRatingGenre;
+
+  const titleControl = (
+    <svg
+      width={svgWidth}
+      height={svgHeight}
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      style={{
+        overflow: "visible",
+        display: "block",
+        cursor: editable ? "pointer" : undefined,
+      }}
+      aria-hidden={editable ? undefined : true}
+      role={editable ? "button" : undefined}
+      tabIndex={editable ? 0 : undefined}
+      aria-label={editable ? storyOverlay?.editAriaLabel : undefined}
+      onClick={editable ? storyOverlay?.onEditClick : undefined}
+      onKeyDown={
+        editable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                storyOverlay?.onEditClick?.();
+              }
+            }
+          : undefined
+      }
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#8ab4c8" />
+          <stop offset="35%" stopColor="#c8d8e4" />
+          <stop offset="65%" stopColor="#e8dcc8" />
+          <stop offset="100%" stopColor="#8ab4c8" />
+        </linearGradient>
+        <path id={pathId} d={arcPath} fill="none" />
+      </defs>
+      <text
+        fill={`url(#${gradientId})`}
+        fontFamily="'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif"
+        fontSize={appearance.titleFontSize}
+        fontWeight={700}
+        fontStyle="italic"
+        letterSpacing={appearance.titleLetterSpacing}
+        opacity={appearance.titleOpacity}
+        stroke="rgba(20,40,60,0.35)"
+        strokeWidth={0.6}
+        paintOrder="stroke fill"
+        style={{ pointerEvents: "none" }}
+      >
+        <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+          {title.toUpperCase()}
+        </textPath>
+      </text>
+    </svg>
+  );
+
   return (
     <Billboard
       position={[
@@ -103,42 +185,153 @@ export function ConstellationTitle({
         distanceFactor={appearance.titleDistanceFactor}
         zIndexRange={appearance.htmlZIndexRange}
         occlude={false}
-        style={{ pointerEvents: "none", userSelect: "none" }}
+        style={{
+          pointerEvents: editable ? "auto" : "none",
+          userSelect: "none",
+        }}
       >
-        <svg
-          width={svgWidth}
-          height={svgHeight}
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          style={{ overflow: "visible", display: "block" }}
-          aria-hidden
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+          }}
         >
-          <defs>
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#8ab4c8" />
-              <stop offset="35%" stopColor="#c8d8e4" />
-              <stop offset="65%" stopColor="#e8dcc8" />
-              <stop offset="100%" stopColor="#8ab4c8" />
-            </linearGradient>
-            <path id={pathId} d={arcPath} fill="none" />
-          </defs>
-          <text
-            fill={`url(#${gradientId})`}
-            fontFamily="'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif"
-            fontSize={appearance.titleFontSize}
-            fontWeight={700}
-            fontStyle="italic"
-            letterSpacing={appearance.titleLetterSpacing}
-            opacity={appearance.titleOpacity}
-            stroke="rgba(20,40,60,0.35)"
-            strokeWidth={0.6}
-            paintOrder="stroke fill"
-          >
-            <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
-              {title.toUpperCase()}
-            </textPath>
-          </text>
-        </svg>
+          {titleControl}
+
+          {showOverlay ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+                maxWidth: svgWidth,
+                pointerEvents: "none",
+              }}
+            >
+              {hasDirector ? (
+                <DirectorCredit
+                  prefix={storyOverlay!.chosenByPrefix}
+                  name={storyOverlay!.directorName!}
+                  avatarUrl={storyOverlay!.directorAvatarUrl ?? null}
+                />
+              ) : null}
+
+              {hasRatingGenre ? (
+                <RatingGenreLine
+                  contentRating={storyOverlay!.contentRating ?? null}
+                  genre={storyOverlay!.genre ?? null}
+                  separator={storyOverlay!.ratingGenreSeparator ?? " · "}
+                />
+              ) : null}
+            </div>
+          ) : null}
+        </div>
       </Html>
     </Billboard>
+  );
+}
+
+function DirectorCredit({
+  prefix,
+  name,
+  avatarUrl,
+}: {
+  prefix: string;
+  name: string;
+  avatarUrl: string | null;
+}) {
+  const initial = name.trim().charAt(0).toUpperCase() || "?";
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 11,
+        color: "rgba(232,240,255,0.72)",
+        letterSpacing: 0.35,
+        textShadow: "0 1px 8px rgba(0,0,0,0.95)",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span style={{ opacity: 0.85 }}>{prefix}</span>
+      <span
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          overflow: "hidden",
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid rgba(126,184,255,0.35)",
+          fontSize: 9,
+          fontWeight: 700,
+          color: "rgba(232,240,255,0.9)",
+        }}
+      >
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : (
+          initial
+        )}
+      </span>
+      <span style={{ fontWeight: 600 }}>{name}</span>
+    </div>
+  );
+}
+
+function RatingGenreLine({
+  contentRating,
+  genre,
+  separator,
+}: {
+  contentRating: string | null;
+  genre: string | null;
+  separator: string;
+}) {
+  const parts: ReactNode[] = [];
+  if (contentRating) {
+    parts.push(
+      <span key="rating" style={{ fontWeight: 700 }}>
+        {contentRating}
+      </span>,
+    );
+  }
+  if (genre) {
+    parts.push(<span key="genre">{genre}</span>);
+  }
+  if (parts.length === 0) return null;
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 0,
+        fontSize: 10,
+        letterSpacing: 0.5,
+        textTransform: "uppercase",
+        color: "rgba(232,240,255,0.55)",
+        textShadow: "0 1px 6px rgba(0,0,0,0.95)",
+      }}
+    >
+      {parts.map((part, i) => (
+        <span key={i}>
+          {i > 0 ? separator : null}
+          {part}
+        </span>
+      ))}
+    </div>
   );
 }
