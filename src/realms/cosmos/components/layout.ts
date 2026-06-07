@@ -50,11 +50,17 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** World-space gap between parent and child along +Z (chronological depth). */
-export const COSMOS_SCENE_LEVEL_SPACING = 6;
+/** World-space gap between parent and child along −Z (away from the viewer). */
+export const COSMOS_SCENE_LEVEL_SPACING = 7;
 
 /** Lateral gap between sibling branches at the same parent. */
-export const COSMOS_BRANCH_SIBLING_SPACING = 4;
+export const COSMOS_BRANCH_SIBLING_SPACING = 5.5;
+
+/** Minimum clearance between scene star centers in the XZ plane. */
+export const COSMOS_MIN_NODE_CLEARANCE = 5;
+
+/** Minimum clearance between unrelated edge segments in the XZ plane. */
+export const COSMOS_MIN_EDGE_CLEARANCE = 2.2;
 
 /** @deprecated API x multiplier — 3D layout uses parent-relative BFS instead. */
 export const COSMOS_SCENE_BRANCH_SPACING = 1.6;
@@ -207,30 +213,267 @@ function buildChildrenByParent(
   return childrenByParent;
 }
 
-function buildParentByChild(
-  ordered: ConstellationLayoutScene[],
-  edges: ConstellationLayoutEdge[],
-): Map<string, string> {
-  const parentByChild = new Map<string, string>();
-  const orderIndex = new Map(ordered.map((scene, idx) => [scene.id, idx]));
-
-  const sortedEdges = [...edges].sort((a, b) => {
-    const aIdx = orderIndex.get(a.target) ?? Number.MAX_SAFE_INTEGER;
-    const bIdx = orderIndex.get(b.target) ?? Number.MAX_SAFE_INTEGER;
-    return aIdx - bIdx;
-  });
-
-  for (const edge of sortedEdges) {
-    if (!parentByChild.has(edge.target)) {
-      parentByChild.set(edge.target, edge.source);
-    }
-  }
-
-  return parentByChild;
-}
-
 function sceneLevelJitter(sceneId: string): number {
   return (hashSceneId(sceneId, "y") - 0.5) * 1.2;
+}
+
+type Segment2D = { ax: number; az: number; bx: number; bz: number };
+
+function distPointSegment2D(
+  px: number,
+  pz: number,
+  ax: number,
+  az: number,
+  bx: number,
+  bz: number,
+): number {
+  const dx = bx - ax;
+  const dz = bz - az;
+  const lenSq = dx * dx + dz * dz;
+  if (lenSq === 0) return Math.hypot(px - ax, pz - az);
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / lenSq));
+  const cx = ax + t * dx;
+  const cz = az + t * dz;
+  return Math.hypot(px - cx, pz - cz);
+}
+
+function distSegmentSegment2D(a: Segment2D, b: Segment2D): number {
+  if (
+    (a.ax === a.bx && a.az === a.bz) ||
+    (b.ax === b.bx && b.az === b.bz)
+  ) {
+    const pointSeg = a.ax === a.bx && a.az === a.bz ? b : a;
+    const px = a.ax === a.bx && a.az === a.bz ? a.ax : b.ax;
+    const pz = a.ax === a.bx && a.az === a.bz ? a.az : b.az;
+    return distPointSegment2D(
+      px,
+      pz,
+      pointSeg.ax,
+      pointSeg.az,
+      pointSeg.bx,
+      pointSeg.bz,
+    );
+  }
+
+  const checks = [
+    distPointSegment2D(a.ax, a.az, b.ax, b.az, b.bx, b.bz),
+    distPointSegment2D(a.bx, a.bz, b.ax, b.az, b.bx, b.bz),
+    distPointSegment2D(b.ax, b.az, a.ax, a.az, a.bx, a.bz),
+    distPointSegment2D(b.bx, b.bz, a.ax, a.az, a.bx, a.bz),
+  ];
+  return Math.min(...checks);
+}
+
+function collectEdgeSegments(
+  positions: Map<string, Vec3>,
+  edges: ConstellationLayoutEdge[],
+  exclude?: { source: string; target: string },
+): Segment2D[] {
+  const segments: Segment2D[] = [];
+  for (const edge of edges) {
+    if (
+      exclude &&
+      edge.source === exclude.source &&
+      edge.target === exclude.target
+    ) {
+      continue;
+    }
+    const src = positions.get(edge.source);
+    const tgt = positions.get(edge.target);
+    if (!src || !tgt) continue;
+    segments.push({ ax: src[0], az: src[2], bx: tgt[0], bz: tgt[2] });
+  }
+  return segments;
+}
+
+function edgeClearanceOk(
+  positions: Map<string, Vec3>,
+  edges: ConstellationLayoutEdge[],
+  sourceId: string,
+  targetId: string,
+  minClearance: number,
+): boolean {
+  const src = positions.get(sourceId);
+  const tgt = positions.get(targetId);
+  if (!src || !tgt) return true;
+
+  const candidate: Segment2D = {
+    ax: src[0],
+    az: src[2],
+    bx: tgt[0],
+    bz: tgt[2],
+  };
+  const existing = collectEdgeSegments(positions, edges, {
+    source: sourceId,
+    target: targetId,
+  });
+
+  return existing.every(
+    (seg) =>
+      distSegmentSegment2D(candidate, seg) >= minClearance ||
+      (seg.ax === candidate.ax &&
+        seg.az === candidate.az &&
+        seg.bx === candidate.bx &&
+        seg.bz === candidate.bz),
+  );
+}
+
+function nodeClearanceOk(
+  positions: Map<string, Vec3>,
+  sceneId: string,
+  pos: Vec3,
+  minClearance: number,
+): boolean {
+  for (const [otherId, otherPos] of positions) {
+    if (otherId === sceneId) continue;
+    if (Math.hypot(pos[0] - otherPos[0], pos[2] - otherPos[2]) < minClearance) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function organicChildOffset(
+  parentId: string,
+  childId: string,
+  childIndex: number,
+  siblingCount: number,
+  nodeCount: number,
+): [number, number] {
+  const fanSpread = Math.min(
+    Math.PI * 0.9,
+    0.28 * siblingCount + 0.22 * Math.sqrt(nodeCount),
+  );
+  const mid = (siblingCount - 1) / 2;
+  const baseAngle =
+    hashSceneId(parentId, "fan") * Math.PI * 2 +
+    (childIndex - mid) * (fanSpread / Math.max(siblingCount - 1, 1));
+  const reach =
+    COSMOS_BRANCH_SIBLING_SPACING *
+    (0.75 + hashSceneId(childId, "reach") * 0.65 + Math.min(nodeCount, 8) * 0.04);
+  return [Math.cos(baseAngle) * reach, Math.sin(baseAngle) * reach * 0.18];
+}
+
+function placeChildScene(
+  parentPos: Vec3,
+  parentId: string,
+  childId: string,
+  childIndex: number,
+  siblingCount: number,
+  nodeCount: number,
+): Vec3 {
+  const depthStep =
+    COSMOS_SCENE_LEVEL_SPACING *
+    (0.82 + hashSceneId(childId, "depth") * 0.28);
+  const [ox, oz] = organicChildOffset(
+    parentId,
+    childId,
+    childIndex,
+    siblingCount,
+    nodeCount,
+  );
+
+  return [
+    parentPos[0] + ox,
+    parentPos[1] + sceneLevelJitter(childId),
+    parentPos[2] - depthStep + oz,
+  ];
+}
+
+function resolveNodeOverlaps(
+  positions: Map<string, Vec3>,
+  minClearance: number,
+): void {
+  const ids = [...positions.keys()];
+  for (let pass = 0; pass < 6; pass++) {
+    let moved = false;
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const aId = ids[i];
+        const bId = ids[j];
+        const a = positions.get(aId)!;
+        const b = positions.get(bId)!;
+        const dx = b[0] - a[0];
+        const dz = b[2] - a[2];
+        const dist = Math.hypot(dx, dz);
+        if (dist >= minClearance || dist === 0) continue;
+
+        const push = (minClearance - dist) * 0.55;
+        const nx = dx / (dist || 1);
+        const nz = dz / (dist || 1);
+        positions.set(aId, [a[0] - nx * push, a[1], a[2] - nz * push]);
+        positions.set(bId, [b[0] + nx * push, b[1], b[2] + nz * push]);
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+}
+
+function resolveEdgeOverlaps(
+  positions: Map<string, Vec3>,
+  edges: ConstellationLayoutEdge[],
+  minClearance: number,
+): void {
+  for (let pass = 0; pass < 4; pass++) {
+    let adjusted = false;
+    for (const edge of edges) {
+      const src = positions.get(edge.source);
+      const tgt = positions.get(edge.target);
+      if (!src || !tgt) continue;
+
+      const candidate: Segment2D = {
+        ax: src[0],
+        az: src[2],
+        bx: tgt[0],
+        bz: tgt[2],
+      };
+      const others = collectEdgeSegments(positions, edges, edge);
+
+      for (const other of others) {
+        if (distSegmentSegment2D(candidate, other) >= minClearance) continue;
+
+        const nudge =
+          (hashSceneId(edge.target, `edge-${pass}`) - 0.5) *
+          COSMOS_BRANCH_SIBLING_SPACING *
+          0.35;
+        positions.set(edge.target, [
+          tgt[0] + nudge,
+          tgt[1],
+          tgt[2] - minClearance * 0.15,
+        ]);
+        adjusted = true;
+        break;
+      }
+    }
+    if (!adjusted) break;
+  }
+}
+
+function placeEndScenes(
+  ordered: ConstellationLayoutScene[],
+  positions: Map<string, Vec3>,
+  anchor: Vec3,
+): void {
+  let deepestZ = anchor[2];
+  for (const pos of positions.values()) {
+    deepestZ = Math.min(deepestZ, pos[2]);
+  }
+
+  const endScenes = ordered.filter((scene) => scene.is_end);
+  endScenes.forEach((scene, idx) => {
+    const endAngle =
+      hashSceneId(scene.id, "end") * Math.PI * 2 +
+      idx * GOLDEN_ANGLE * 0.35;
+    const endSpread =
+      COSMOS_BRANCH_SIBLING_SPACING *
+      (1.4 + hashSceneId(scene.id, "end-r") * 0.8);
+    positions.set(scene.id, [
+      anchor[0] + Math.cos(endAngle) * endSpread,
+      anchor[1] + sceneLevelJitter(scene.id),
+      deepestZ - COSMOS_SCENE_LEVEL_SPACING,
+    ]);
+  });
 }
 
 function layoutFromGraphEdges(
@@ -242,6 +485,7 @@ function layoutFromGraphEdges(
   const positions = new Map<string, Vec3>();
   const sceneById = new Map(ordered.map((scene) => [scene.id, scene]));
   const orderIndex = new Map(ordered.map((scene, idx) => [scene.id, idx]));
+  const nodeCount = ordered.length;
 
   positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
 
@@ -260,56 +504,85 @@ function layoutFromGraphEdges(
     const parentPos = positions.get(parentId);
     if (!parentPos) continue;
 
-    const kids = childrenByParent.get(parentId) ?? [];
-    kids.forEach((childId, idx) => {
-      if (visited.has(childId) || !sceneById.has(childId)) return;
+    const kids = (childrenByParent.get(parentId) ?? []).filter(
+      (childId) => sceneById.has(childId) && !sceneById.get(childId)?.is_end,
+    );
 
-      const branchOffset =
-        (idx - (kids.length - 1) / 2) * COSMOS_BRANCH_SIBLING_SPACING;
-      positions.set(childId, [
-        parentPos[0] + branchOffset,
-        parentPos[1] + sceneLevelJitter(childId),
-        parentPos[2] + COSMOS_SCENE_LEVEL_SPACING,
-      ]);
+    kids.forEach((childId, idx) => {
+      if (visited.has(childId)) return;
+
+      let candidate = placeChildScene(
+        parentPos,
+        parentId,
+        childId,
+        idx,
+        kids.length,
+        nodeCount,
+      );
+
+      for (let attempt = 0; attempt < 10; attempt++) {
+        const attemptAngle =
+          hashSceneId(childId, `try-${attempt}`) * Math.PI * 2;
+        if (attempt > 0) {
+          const reach = COSMOS_BRANCH_SIBLING_SPACING * (0.6 + attempt * 0.12);
+          candidate = [
+            parentPos[0] + Math.cos(attemptAngle) * reach,
+            parentPos[1] + sceneLevelJitter(childId),
+            parentPos[2] -
+              COSMOS_SCENE_LEVEL_SPACING *
+                (0.85 + hashSceneId(childId, `d-${attempt}`) * 0.25),
+          ];
+        }
+
+        const trial = new Map(positions);
+        trial.set(childId, candidate);
+        if (
+          nodeClearanceOk(positions, childId, candidate, COSMOS_MIN_NODE_CLEARANCE) &&
+          edgeClearanceOk(
+            trial,
+            edges,
+            parentId,
+            childId,
+            COSMOS_MIN_EDGE_CLEARANCE,
+          )
+        ) {
+          break;
+        }
+      }
+
+      positions.set(childId, candidate);
       visited.add(childId);
       queue.push(childId);
     });
   }
 
-  let maxContentZ = anchor[2];
-  for (const [sceneId, pos] of positions) {
-    if (sceneById.get(sceneId)?.is_end) continue;
-    maxContentZ = Math.max(maxContentZ, pos[2]);
-  }
-
-  for (const scene of ordered) {
-    if (!scene.is_end) continue;
-    positions.set(scene.id, [
-      anchor[0],
-      anchor[1] + sceneLevelJitter(scene.id),
-      maxContentZ + COSMOS_SCENE_LEVEL_SPACING,
-    ]);
-  }
+  placeEndScenes(ordered, positions, anchor);
 
   let spineLevel = 0;
   for (const scene of ordered) {
     if (positions.has(scene.id)) continue;
     spineLevel += 1;
+    const angle = spineLevel * GOLDEN_ANGLE + hashSceneId(scene.id) * 0.55;
+    const reach =
+      COSMOS_BRANCH_SIBLING_SPACING *
+      (0.8 + hashSceneId(scene.id, "spine") * 0.7);
     positions.set(scene.id, [
-      anchor[0],
+      anchor[0] + Math.cos(angle) * reach,
       anchor[1] + sceneLevelJitter(scene.id),
-      anchor[2] + spineLevel * COSMOS_SCENE_LEVEL_SPACING,
+      anchor[2] - spineLevel * COSMOS_SCENE_LEVEL_SPACING,
     ]);
   }
+
+  resolveNodeOverlaps(positions, COSMOS_MIN_NODE_CLEARANCE);
+  resolveEdgeOverlaps(positions, edges, COSMOS_MIN_EDGE_CLEARANCE);
 
   return positions;
 }
 
 /**
  * Scene positions relative to the title star at the constellation anchor.
- * When story-flow edges exist, each child sits one +Z step from its parent
- * with compact sibling spread on X. Without edges, scenes use a golden-angle
- * fallback spine.
+ * The title sits closest to the viewer (+Z); the story recedes along −Z with
+ * organic lateral spread. Without edges, scenes use a golden-angle spine.
  */
 export function computeConstellationScenePositions(
   scenes: ConstellationLayoutScene[],
@@ -330,53 +603,41 @@ export function computeConstellationScenePositions(
   }
 
   positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
-  const parentByChild = edges.length > 0
-    ? buildParentByChild(ordered, edges)
-    : new Map<string, string>();
+  const nodeCount = ordered.length;
 
   let spineIndex = 0;
   for (const scene of ordered) {
     if (scene.id === root.id) continue;
+    if (scene.is_end) continue;
 
-    let parentId = parentByChild.get(scene.id);
-    if (!parentId || !positions.has(parentId)) {
-      const prevScene = ordered[spineIndex] ?? root;
-      parentId = prevScene.id;
-    }
-
-    const parentPos = positions.get(parentId) ?? [anchor[0], anchor[1], anchor[2]];
     const angle = spineIndex * GOLDEN_ANGLE + hashSceneId(scene.id) * 0.55;
-    const dist =
-      COSMOS_MAX_SCENE_EDGE_LENGTH * (0.9 + hashSceneId(scene.id, "d") * 0.1);
-    const yJitter = sceneLevelJitter(scene.id);
+    const reach =
+      COSMOS_BRANCH_SIBLING_SPACING *
+      (0.85 + hashSceneId(scene.id, "d") * 0.75 + Math.min(nodeCount, 8) * 0.05);
+    const depthStep =
+      COSMOS_SCENE_LEVEL_SPACING *
+      (0.85 + hashSceneId(scene.id, "depth") * 0.25);
 
     positions.set(scene.id, [
-      parentPos[0] + Math.cos(angle) * dist,
-      parentPos[1] + yJitter,
-      parentPos[2] + Math.sin(angle) * dist,
+      anchor[0] + Math.cos(angle) * reach,
+      anchor[1] + sceneLevelJitter(scene.id),
+      anchor[2] - (spineIndex + 1) * depthStep,
     ]);
     spineIndex += 1;
   }
 
-  if (edges.length > 0) {
-    for (const edge of edges) {
-      clampEdgeLength(
-        positions,
-        edge.source,
-        edge.target,
-        COSMOS_MAX_SCENE_EDGE_LENGTH,
-      );
-    }
-  } else {
-    for (let i = 1; i < ordered.length; i++) {
-      clampEdgeLength(
-        positions,
-        ordered[i - 1].id,
-        ordered[i].id,
-        COSMOS_MAX_SCENE_EDGE_LENGTH,
-      );
-    }
+  placeEndScenes(ordered, positions, anchor);
+
+  for (let i = 1; i < ordered.length; i++) {
+    clampEdgeLength(
+      positions,
+      ordered[i - 1].id,
+      ordered[i].id,
+      COSMOS_MAX_SCENE_EDGE_LENGTH,
+    );
   }
+
+  resolveNodeOverlaps(positions, COSMOS_MIN_NODE_CLEARANCE);
 
   return positions;
 }
