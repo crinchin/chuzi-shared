@@ -40,7 +40,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   titleOpacity: 0.82,
   titleColor: "#c8dce8",
   titleLetterSpacing: 6,
-  titleYOffset: 8,
+  titleYOffset: 16,
   titleDistanceFactor: 12,
   htmlZIndexRange: [8, 0],
 

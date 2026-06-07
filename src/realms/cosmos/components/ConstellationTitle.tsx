@@ -29,8 +29,8 @@ export function computeConstellationBounds(
 
   return {
     center: [(minX + maxX) / 2, sumY / positions.length, (minZ + maxZ) / 2],
-    spanX: Math.max(6, maxX - minX + 4),
-    spanZ: Math.max(4, maxZ - minZ + 3),
+    spanX: Math.max(10, maxX - minX + 6),
+    spanZ: Math.max(8, maxZ - minZ + 5),
   };
 }
 
@@ -39,6 +39,8 @@ export interface ConstellationStoryOverlay {
   chosenByPrefix: string;
   directorName?: string | null;
   directorAvatarUrl?: string | null;
+  /** Procedural avatar when no uploaded photo (e.g. constellation seal). */
+  directorAvatarFallback?: ReactNode;
   contentRating?: string | null;
   genre?: string | null;
   /** Shown between rating and genre. */
@@ -195,7 +197,8 @@ export function ConstellationTitle({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 6,
+            gap: 8,
+            marginTop: 4,
           }}
         >
           {titleControl}
@@ -206,8 +209,9 @@ export function ConstellationTitle({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 4,
+                gap: 6,
                 maxWidth: svgWidth,
+                marginTop: 6,
                 pointerEvents: "none",
               }}
             >
@@ -216,6 +220,7 @@ export function ConstellationTitle({
                   prefix={storyOverlay!.chosenByPrefix}
                   name={storyOverlay!.directorName!}
                   avatarUrl={storyOverlay!.directorAvatarUrl ?? null}
+                  avatarFallback={storyOverlay!.directorAvatarFallback}
                 />
               ) : null}
 
@@ -238,10 +243,12 @@ function DirectorCredit({
   prefix,
   name,
   avatarUrl,
+  avatarFallback,
 }: {
   prefix: string;
   name: string;
   avatarUrl: string | null;
+  avatarFallback?: ReactNode;
 }) {
   const initial = name.trim().charAt(0).toUpperCase() || "?";
 
@@ -282,6 +289,8 @@ function DirectorCredit({
             alt=""
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
+        ) : avatarFallback ? (
+          avatarFallback
         ) : (
           initial
         )}
