@@ -91,6 +91,81 @@ export interface PublicDirectorProfile {
   stories_count: number;
 }
 
+// ── Credits & payments ──
+
+export type CreditPool = "watch" | "create";
+
+export interface CreditBalance {
+  watch: number;
+  create: number;
+}
+
+export interface CreditPack {
+  id: string;
+  pool: CreditPool;
+  name: string;
+  credits: number;
+  price_cents: number;
+  price: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: string;
+  last_four: string;
+  label: string | null;
+  is_default: boolean;
+  created_at: string;
+}
+
+export interface CreditBalanceResponse {
+  balance: CreditBalance;
+}
+
+export interface UploadCostResponse {
+  file_size_bytes: number;
+  file_size_mb: number;
+  base_size_mb: number;
+  credits_needed: number;
+  balance: CreditBalance;
+  can_afford: boolean;
+}
+
+export interface PurchaseCreditsRequest {
+  pack_id: string;
+  payment_method_id?: string;
+}
+
+export interface PurchaseAmountRequest {
+  pool: CreditPool;
+  credits: number;
+  payment_method_id?: string;
+}
+
+export interface PurchaseCreditsResponse {
+  message: string;
+  transaction_id?: string;
+  balance: CreditBalance;
+}
+
+export interface StorePaymentMethodRequest {
+  type?: string;
+  last_four: string;
+  label?: string;
+}
+
+export interface GrantCreditsRequest {
+  user_id: string;
+  pool: CreditPool;
+  amount: number;
+  note?: string;
+}
+
+export interface GrantCreditsResponse {
+  message: string;
+  balance: CreditBalance;
+}
+
 // ── Catalog ──
 
 export interface StoryListItem {

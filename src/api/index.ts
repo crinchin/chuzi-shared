@@ -54,6 +54,16 @@ import type {
   UploadUrlRequest,
   UploadUrlResponse,
   UserProfile,
+  CreditBalanceResponse,
+  CreditPool,
+  GrantCreditsRequest,
+  GrantCreditsResponse,
+  PaymentMethod,
+  PurchaseAmountRequest,
+  PurchaseCreditsRequest,
+  PurchaseCreditsResponse,
+  StorePaymentMethodRequest,
+  UploadCostResponse,
 } from "../types/index.js";
 
 /**
@@ -83,6 +93,25 @@ export class ChuziApiError extends Error {
     super(message ?? `chuzi-api ${status}`);
     this.name = "ChuziApiError";
   }
+}
+
+export function isInsufficientCreditsError(err: unknown): err is ChuziApiError {
+  if (!(err instanceof ChuziApiError) || err.status !== 403) {
+    return false;
+  }
+  const body = err.body as { error?: string } | null;
+  return typeof body?.error === "string" && /insufficient/i.test(body.error);
+}
+
+export function insufficientCreditsPool(err: unknown): CreditPool | null {
+  if (!isInsufficientCreditsError(err)) {
+    return null;
+  }
+  const body = err.body as { error?: string };
+  const message = body.error ?? "";
+  if (/watch/i.test(message)) return "watch";
+  if (/create/i.test(message)) return "create";
+  return null;
 }
 
 interface RequestOptions {
@@ -214,13 +243,32 @@ export interface ChuziClient {
     usernameAvailability(username: string, opts?: { signal?: AbortSignal }): Promise<UsernameAvailabilityResponse>;
   };
   credits: {
-    balance(opts?: { signal?: AbortSignal }): Promise<{ balance: number }>;
+    balance(opts?: { signal?: AbortSignal }): Promise<CreditBalanceResponse>;
     ledger(opts?: {
       signal?: AbortSignal;
-      cursor?: string;
-      limit?: number;
-    }): Promise<{ data: unknown[]; next_cursor: string | null }>;
-    packs(opts?: { signal?: AbortSignal }): Promise<{ data: unknown[] }>;
+      pool?: CreditPool;
+    }): Promise<{ transactions: unknown[] }>;
+    packs(opts?: { signal?: AbortSignal }): Promise<{ packs: import("../types/index.js").CreditPack[] }>;
+    uploadCost(fileSize: number, opts?: { signal?: AbortSignal }): Promise<UploadCostResponse>;
+    purchase(req: PurchaseCreditsRequest): Promise<PurchaseCreditsResponse>;
+    purchaseAmount(req: PurchaseAmountRequest): Promise<PurchaseCreditsResponse>;
+    unlockScene(sceneId: string, opts?: { signal?: AbortSignal }): Promise<{
+      unlocked: boolean;
+      already_watched?: boolean;
+      balance: import("../types/index.js").CreditBalance;
+      error?: string;
+    }>;
+  };
+  payments: {
+    list(opts?: { signal?: AbortSignal }): Promise<{ payment_methods: PaymentMethod[] }>;
+    store(req: StorePaymentMethodRequest): Promise<{ payment_method: PaymentMethod }>;
+    remove(paymentMethodId: string): Promise<{ message: string }>;
+    setDefault(paymentMethodId: string): Promise<{ message: string }>;
+  };
+  admin: {
+    credits: {
+      grant(req: GrantCreditsRequest): Promise<GrantCreditsResponse>;
+    };
   };
   ai: {
     generateImage(req: GenerateImageRequest): Promise<GenerateImageResponse>;
@@ -360,9 +408,38 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       ledger: (opts) =>
         request("GET", "/api/v1/credits/ledger", {
           signal: opts?.signal,
-          query: { cursor: opts?.cursor, limit: opts?.limit },
+          query: opts?.pool ? { pool: opts.pool } : undefined,
         }),
       packs: (opts) => request("GET", "/api/v1/credits/packs", opts),
+      uploadCost: (fileSize, opts) =>
+        request("GET", "/api/v1/credits/upload-cost", {
+          signal: opts?.signal,
+          query: { file_size: fileSize },
+        }),
+      purchase: (req) =>
+        request("POST", "/api/v1/credits/purchase", { body: req }),
+      purchaseAmount: (req) =>
+        request("POST", "/api/v1/credits/purchase-amount", { body: req }),
+      unlockScene: (sceneId, opts) =>
+        request("POST", `/api/v1/scenes/${encodeURIComponent(sceneId)}/unlock`, opts),
+    },
+    payments: {
+      list: (opts) => request("GET", "/api/v1/payments/methods", opts),
+      store: (req) =>
+        request("POST", "/api/v1/payments/methods", { body: req }),
+      remove: (paymentMethodId) =>
+        request("DELETE", `/api/v1/payments/methods/${encodeURIComponent(paymentMethodId)}`),
+      setDefault: (paymentMethodId) =>
+        request(
+          "POST",
+          `/api/v1/payments/methods/${encodeURIComponent(paymentMethodId)}/default`,
+        ),
+    },
+    admin: {
+      credits: {
+        grant: (req) =>
+          request("POST", "/api/v1/admin/credits/grant", { body: req }),
+      },
     },
     ai: {
       generateImage: (req) =>
