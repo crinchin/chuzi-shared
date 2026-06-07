@@ -278,6 +278,8 @@ export interface ChuziClient {
     storyStyle(storyId: string, opts?: { signal?: AbortSignal }): Promise<StoryStyleResponse>;
     storyEstimate(req: import("../types/index.js").AiStoryEstimateRequest): Promise<import("../types/index.js").AiStoryEstimateResponse>;
     storyGenerate(req: import("../types/index.js").AiStoryGenerateRequest): Promise<import("../types/index.js").AiStoryGenerateResponse>;
+    sceneEstimate(req: import("../types/index.js").AiSceneEstimateRequest): Promise<import("../types/index.js").AiSceneEstimateResponse>;
+    sceneGenerate(req: import("../types/index.js").AiSceneGenerateRequest): Promise<import("../types/index.js").AiSceneGenerateResponse>;
   };
 }
 
@@ -458,6 +460,14 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("POST", "/api/v1/ai/story/estimate", { body: req }),
       storyGenerate: (req) =>
         request("POST", "/api/v1/ai/story/generate", { body: req }),
+      sceneEstimate: (req) =>
+        request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/scene/estimate`, {
+          body: { brief: req.brief, mode: req.mode, scene_id: req.scene_id },
+        }),
+      sceneGenerate: (req) =>
+        request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/scene/generate`, {
+          body: { brief: req.brief, mode: req.mode, scene_id: req.scene_id },
+        }),
     },
   };
 }

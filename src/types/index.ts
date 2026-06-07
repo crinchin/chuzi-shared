@@ -653,6 +653,47 @@ export interface AiStoryGenerateResponse {
   balance: CreditBalance;
 }
 
+export type AiSceneMode = "create" | "overwrite";
+
+export interface AiSceneEstimateRequest {
+  story_id: string;
+  brief: string;
+  mode: AiSceneMode;
+  scene_id?: string;
+}
+
+export interface AiSceneEstimateResponse {
+  estimate: AiStoryTokenEstimate;
+  scene_credits: number;
+  total_credits: number;
+  balance: CreditBalance;
+  can_afford: boolean;
+}
+
+export interface AiSceneGenerateRequest {
+  story_id: string;
+  brief: string;
+  mode: AiSceneMode;
+  scene_id?: string;
+}
+
+export interface AiSceneGenerationResult {
+  id: string;
+  story_id: string;
+  mode: AiSceneMode;
+  scene: AiStoryScenePayload;
+  input_tokens: number;
+  output_tokens: number;
+  credits_charged: number;
+  scene_credits: number;
+  model_id: string;
+}
+
+export interface AiSceneGenerateResponse {
+  generation: AiSceneGenerationResult;
+  balance: CreditBalance;
+}
+
 // ── Media ──
 
 export interface MediaItem {
