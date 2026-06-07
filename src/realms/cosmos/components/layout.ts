@@ -383,6 +383,7 @@ function placeChildScene(
 function resolveNodeOverlaps(
   positions: Map<string, Vec3>,
   minClearance: number,
+  pinnedIds: ReadonlySet<string> = new Set(),
 ): void {
   const ids = [...positions.keys()];
   for (let pass = 0; pass < 6; pass++) {
@@ -401,8 +402,12 @@ function resolveNodeOverlaps(
         const push = (minClearance - dist) * 0.55;
         const nx = dx / (dist || 1);
         const nz = dz / (dist || 1);
-        positions.set(aId, [a[0] - nx * push, a[1], a[2] - nz * push]);
-        positions.set(bId, [b[0] + nx * push, b[1], b[2] + nz * push]);
+        if (!pinnedIds.has(aId)) {
+          positions.set(aId, [a[0] - nx * push, a[1], a[2] - nz * push]);
+        }
+        if (!pinnedIds.has(bId)) {
+          positions.set(bId, [b[0] + nx * push, b[1], b[2] + nz * push]);
+        }
         moved = true;
       }
     }
@@ -573,7 +578,11 @@ function layoutFromGraphEdges(
     ]);
   }
 
-  resolveNodeOverlaps(positions, COSMOS_MIN_NODE_CLEARANCE);
+  resolveNodeOverlaps(
+    positions,
+    COSMOS_MIN_NODE_CLEARANCE,
+    new Set([root.id]),
+  );
   resolveEdgeOverlaps(positions, edges, COSMOS_MIN_EDGE_CLEARANCE);
 
   return positions;
@@ -637,7 +646,11 @@ export function computeConstellationScenePositions(
     );
   }
 
-  resolveNodeOverlaps(positions, COSMOS_MIN_NODE_CLEARANCE);
+  resolveNodeOverlaps(
+    positions,
+    COSMOS_MIN_NODE_CLEARANCE,
+    new Set([root.id]),
+  );
 
   return positions;
 }
