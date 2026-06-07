@@ -27,11 +27,13 @@ export {
   COSMOS_CONSTELLATION_GAP_SCENES,
   COSMOS_DEFAULT_FOOTPRINT_RADIUS,
   COSMOS_CONSTELLATION_VISUAL_PADDING,
+  COSMOS_MAX_SCENE_EDGE_LENGTH,
 } from "./layout.js";
 export type {
   Vec3,
   DistributeOptions,
   ConstellationLayoutScene,
+  ConstellationLayoutEdge,
   ConstellationLayoutNode,
   ConstellationLayoutGraph,
   ConstellationAnchorInput,

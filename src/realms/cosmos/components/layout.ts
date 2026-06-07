@@ -56,6 +56,9 @@ export const COSMOS_SCENE_LEVEL_SPACING = 6;
 /** Branch spread multiplier for tree_graph x offsets. */
 export const COSMOS_SCENE_BRANCH_SPACING = 1.1;
 
+/** Maximum distance between two connected scene stars. */
+export const COSMOS_MAX_SCENE_EDGE_LENGTH = 7;
+
 /** Minimum empty space between constellation bounds, in scene spacings. */
 export const COSMOS_CONSTELLATION_GAP_SCENES = 2;
 
@@ -65,12 +68,19 @@ export const COSMOS_DEFAULT_FOOTPRINT_RADIUS = 10;
 /** Extra world units around the outermost scene for billboards / focus glow. */
 export const COSMOS_CONSTELLATION_VISUAL_PADDING = 6;
 
+const GOLDEN_ANGLE = 2.399963229728653;
+
 export interface ConstellationLayoutScene {
   id: string;
   is_title?: boolean;
   is_end?: boolean;
   order?: number;
   created_at?: string;
+}
+
+export interface ConstellationLayoutEdge {
+  source: string;
+  target: string;
 }
 
 export interface ConstellationLayoutNode {
@@ -82,6 +92,7 @@ export interface ConstellationLayoutNode {
 
 export interface ConstellationLayoutGraph {
   nodes: ConstellationLayoutNode[];
+  edges?: ConstellationLayoutEdge[];
   meta?: { root_id?: string | null };
 }
 
@@ -144,8 +155,65 @@ function orderScenesForConstellationLayout(
   return ordered;
 }
 
+function hashSceneId(id: string, salt = ""): number {
+  let h = 0;
+  const key = id + salt;
+  for (let i = 0; i < key.length; i++) {
+    h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  }
+  return h / 4294967296;
+}
+
+function clampEdgeLength(
+  positions: Map<string, Vec3>,
+  sourceId: string,
+  targetId: string,
+  maxLength: number,
+): void {
+  const src = positions.get(sourceId);
+  const tgt = positions.get(targetId);
+  if (!src || !tgt) return;
+
+  const dx = tgt[0] - src[0];
+  const dy = tgt[1] - src[1];
+  const dz = tgt[2] - src[2];
+  const len = Math.hypot(dx, dy, dz);
+  if (len <= maxLength || len === 0) return;
+
+  const scale = maxLength / len;
+  positions.set(targetId, [
+    src[0] + dx * scale,
+    src[1] + dy * scale,
+    src[2] + dz * scale,
+  ]);
+}
+
+function buildParentByChild(
+  ordered: ConstellationLayoutScene[],
+  edges: ConstellationLayoutEdge[],
+): Map<string, string> {
+  const parentByChild = new Map<string, string>();
+  const orderIndex = new Map(ordered.map((scene, idx) => [scene.id, idx]));
+
+  const sortedEdges = [...edges].sort((a, b) => {
+    const aIdx = orderIndex.get(a.target) ?? Number.MAX_SAFE_INTEGER;
+    const bIdx = orderIndex.get(b.target) ?? Number.MAX_SAFE_INTEGER;
+    return aIdx - bIdx;
+  });
+
+  for (const edge of sortedEdges) {
+    if (!parentByChild.has(edge.target)) {
+      parentByChild.set(edge.target, edge.source);
+    }
+  }
+
+  return parentByChild;
+}
+
 /**
  * Scene positions relative to the title star at the origin (constellation anchor).
+ * Scenes cluster in a compact constellation; connected stars never exceed
+ * {@link COSMOS_MAX_SCENE_EDGE_LENGTH} apart.
  */
 export function computeConstellationScenePositions(
   scenes: ConstellationLayoutScene[],
@@ -154,35 +222,61 @@ export function computeConstellationScenePositions(
 ): Map<string, Vec3> {
   const positions = new Map<string, Vec3>();
   const ordered = orderScenesForConstellationLayout(scenes, graph);
-  const count = ordered.length;
+  if (ordered.length === 0) return positions;
 
-  if (!graph?.nodes?.length) {
-    ordered.forEach((scene, idx) => {
-      const along = count === 1 ? 0 : idx * COSMOS_SCENE_LEVEL_SPACING;
-      positions.set(scene.id, [anchor[0] + along, anchor[1], anchor[2]]);
-    });
-    return positions;
+  const root =
+    ordered.find((scene) => scene.is_title) ??
+    ordered[0];
+  positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
+
+  const edges = graph?.edges ?? [];
+  const parentByChild = edges.length > 0
+    ? buildParentByChild(ordered, edges)
+    : new Map<string, string>();
+
+  let spineIndex = 0;
+  for (const scene of ordered) {
+    if (scene.id === root.id) continue;
+
+    let parentId = parentByChild.get(scene.id);
+    if (!parentId || !positions.has(parentId)) {
+      const prevScene = ordered[spineIndex] ?? root;
+      parentId = prevScene.id;
+    }
+
+    const parentPos = positions.get(parentId) ?? [anchor[0], anchor[1], anchor[2]];
+    const angle = spineIndex * GOLDEN_ANGLE + hashSceneId(scene.id) * 0.55;
+    const dist =
+      COSMOS_MAX_SCENE_EDGE_LENGTH * (0.9 + hashSceneId(scene.id, "d") * 0.1);
+    const yJitter = (hashSceneId(scene.id, "y") - 0.5) * 1.4;
+
+    positions.set(scene.id, [
+      parentPos[0] + Math.cos(angle) * dist,
+      parentPos[1] + yJitter,
+      parentPos[2] + Math.sin(angle) * dist,
+    ]);
+    spineIndex += 1;
   }
 
-  const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
-  const rootId = graph.meta?.root_id ?? graph.nodes[0]?.id;
-  const rootNode = rootId ? nodeById.get(rootId) : graph.nodes[0];
-
-  ordered.forEach((scene, idx) => {
-    const node = nodeById.get(scene.id);
-    if (node && rootNode) {
-      const alongPath = node.level * COSMOS_SCENE_LEVEL_SPACING;
-      const branchSpread = (node.x - rootNode.x) * COSMOS_SCENE_BRANCH_SPACING;
-      positions.set(scene.id, [
-        anchor[0] + alongPath,
-        anchor[1],
-        anchor[2] + branchSpread,
-      ]);
-      return;
+  if (edges.length > 0) {
+    for (const edge of edges) {
+      clampEdgeLength(
+        positions,
+        edge.source,
+        edge.target,
+        COSMOS_MAX_SCENE_EDGE_LENGTH,
+      );
     }
-    const along = count === 1 ? 0 : idx * COSMOS_SCENE_LEVEL_SPACING;
-    positions.set(scene.id, [anchor[0] + along, anchor[1], anchor[2]]);
-  });
+  } else {
+    for (let i = 1; i < ordered.length; i++) {
+      clampEdgeLength(
+        positions,
+        ordered[i - 1].id,
+        ordered[i].id,
+        COSMOS_MAX_SCENE_EDGE_LENGTH,
+      );
+    }
+  }
 
   return positions;
 }
