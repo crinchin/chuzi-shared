@@ -50,14 +50,14 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** World-space gap between adjacent scenes along the story spine. */
-export const COSMOS_SCENE_LEVEL_SPACING = 6;
+/** World-space gap between adjacent tree levels along +Z (chronological depth). */
+export const COSMOS_SCENE_LEVEL_SPACING = 11;
 
 /** Branch spread multiplier for tree_graph x offsets. */
-export const COSMOS_SCENE_BRANCH_SPACING = 1.1;
+export const COSMOS_SCENE_BRANCH_SPACING = 1.6;
 
-/** Maximum distance between two connected scene stars. */
-export const COSMOS_MAX_SCENE_EDGE_LENGTH = 7;
+/** Maximum distance between two connected scene stars (fallback spine only). */
+export const COSMOS_MAX_SCENE_EDGE_LENGTH = 14;
 
 /** Minimum empty space between constellation bounds, in scene spacings. */
 export const COSMOS_CONSTELLATION_GAP_SCENES = 2;
@@ -210,10 +210,15 @@ function buildParentByChild(
   return parentByChild;
 }
 
+function sceneLevelJitter(sceneId: string): number {
+  return (hashSceneId(sceneId, "y") - 0.5) * 1.2;
+}
+
 /**
- * Scene positions relative to the title star at the origin (constellation anchor).
- * Scenes cluster in a compact constellation; connected stars never exceed
- * {@link COSMOS_MAX_SCENE_EDGE_LENGTH} apart.
+ * Scene positions relative to the title star at the constellation anchor.
+ * When a tree_graph is present, level maps to +Z depth (chronological "after")
+ * and x spreads branches laterally. Without a graph, scenes fall back to a
+ * linear spine along +Z.
  */
 export function computeConstellationScenePositions(
   scenes: ConstellationLayoutScene[],
@@ -228,6 +233,40 @@ export function computeConstellationScenePositions(
     ordered.find((scene) => scene.is_title) ??
     ordered[0];
   positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
+
+  const nodeById = new Map(
+    (graph?.nodes ?? []).map((node) => [node.id, node]),
+  );
+
+  if (nodeById.size > 0) {
+    const rootNode = nodeById.get(root.id);
+    const rootX = rootNode?.x ?? 0;
+
+    for (const scene of ordered) {
+      if (scene.id === root.id) continue;
+      const node = nodeById.get(scene.id);
+      if (!node) continue;
+
+      positions.set(scene.id, [
+        anchor[0] + (node.x - rootX) * COSMOS_SCENE_BRANCH_SPACING,
+        anchor[1] + sceneLevelJitter(scene.id),
+        anchor[2] + node.level * COSMOS_SCENE_LEVEL_SPACING,
+      ]);
+    }
+
+    let fallbackLevel = 0;
+    for (const scene of ordered) {
+      if (positions.has(scene.id)) continue;
+      fallbackLevel += 1;
+      positions.set(scene.id, [
+        anchor[0],
+        anchor[1] + sceneLevelJitter(scene.id),
+        anchor[2] + fallbackLevel * COSMOS_SCENE_LEVEL_SPACING,
+      ]);
+    }
+
+    return positions;
+  }
 
   const edges = graph?.edges ?? [];
   const parentByChild = edges.length > 0
@@ -248,7 +287,7 @@ export function computeConstellationScenePositions(
     const angle = spineIndex * GOLDEN_ANGLE + hashSceneId(scene.id) * 0.55;
     const dist =
       COSMOS_MAX_SCENE_EDGE_LENGTH * (0.9 + hashSceneId(scene.id, "d") * 0.1);
-    const yJitter = (hashSceneId(scene.id, "y") - 0.5) * 1.4;
+    const yJitter = sceneLevelJitter(scene.id);
 
     positions.set(scene.id, [
       parentPos[0] + Math.cos(angle) * dist,

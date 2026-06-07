@@ -17,6 +17,10 @@ export interface ConstellationSceneEntry {
   id: string;
   /** Visual with final position already computed by the consumer. */
   visual: AtomVisualProps;
+  /** Title scene — arc starts here. */
+  isTitle?: boolean;
+  /** End scene — arc ends here. */
+  isEnd?: boolean;
   /** Scene label shown beneath the preview card. */
   label?: string;
   /** Static preview image (coverbox, poster frame, etc.). */
@@ -74,6 +78,12 @@ export function Constellation({
     scenes.map((s) => s.visual.position),
   );
 
+  const titleScene =
+    scenes.find((s) => s.isTitle) ?? scenes[0];
+  const endScene =
+    scenes.find((s) => s.isEnd) ??
+    scenes[scenes.length - 1];
+
   const resolvedEdges: {
     from: ConstellationSceneEntry;
     to: ConstellationSceneEntry;
@@ -95,8 +105,8 @@ export function Constellation({
           title={storyTitle}
           bounds={bounds}
           appearance={appearance}
-          arcFrom={scenes[0]?.visual.position}
-          arcTo={scenes[scenes.length - 1]?.visual.position}
+          arcFrom={titleScene?.visual.position}
+          arcTo={endScene?.visual.position}
           storyOverlay={storyOverlay}
         />
       ) : null}

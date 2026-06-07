@@ -89,21 +89,34 @@ export function ConstellationTitle({
   const arcY = svgHeight * 0.88;
   const arcPeak = svgHeight * 0.06;
 
-  let arcStartX = svgWidth * 0.04;
-  let arcEndX = svgWidth * 0.96;
+  const minArcSpan = Math.max(240, title.trim().length * 15);
+
+  let arcStartX = centerX - minArcSpan / 2;
+  let arcEndX = centerX + minArcSpan / 2;
 
   if (arcFrom && arcTo) {
     const [fromX] = arcFrom;
     const [toX] = arcTo;
     arcStartX = centerX + (fromX - bounds.center[0]) * WORLD_TO_SVG;
     arcEndX = centerX + (toX - bounds.center[0]) * WORLD_TO_SVG;
-    arcStartX = Math.max(12, Math.min(arcStartX, svgWidth - 12));
-    arcEndX = Math.max(12, Math.min(arcEndX, svgWidth - 12));
     if (arcStartX > arcEndX) {
       const swap = arcStartX;
       arcStartX = arcEndX;
       arcEndX = swap;
     }
+
+    if (arcEndX - arcStartX < minArcSpan) {
+      const mid = (arcStartX + arcEndX) / 2;
+      arcStartX = mid - minArcSpan / 2;
+      arcEndX = mid + minArcSpan / 2;
+    }
+  }
+
+  arcStartX = Math.max(12, Math.min(arcStartX, svgWidth - 12));
+  arcEndX = Math.max(12, Math.min(arcEndX, svgWidth - 12));
+  if (arcEndX - arcStartX < minArcSpan * 0.65) {
+    arcStartX = Math.max(12, centerX - minArcSpan / 2);
+    arcEndX = Math.min(svgWidth - 12, centerX + minArcSpan / 2);
   }
 
   const arcMidX = (arcStartX + arcEndX) / 2;
