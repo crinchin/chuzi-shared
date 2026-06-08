@@ -15,6 +15,8 @@ export interface ConstellationEdgeProps {
   intensityB?: number;
   /** Reduce opacity to indicate an unwatched connection. */
   dimmed?: boolean;
+  /** Multiplier on glow/core opacity for launched stories (1 = baseline). */
+  glowMultiplier?: number;
   /** @deprecated All edges render as soft solid glow; variant is ignored. */
   variant?: ConstellationEdgeVariant;
 }
@@ -33,6 +35,7 @@ export function ConstellationEdge({
   intensityA = 0.5,
   intensityB = 0.5,
   dimmed,
+  glowMultiplier = 1,
 }: ConstellationEdgeProps) {
   const { points, colorA, colorB, glowA, glowB } = useMemo(() => {
     const a = new THREE.Vector3(...from);
@@ -68,8 +71,8 @@ export function ConstellationEdge({
 
   if (!points || !colorA || !colorB || !glowA || !glowB) return null;
 
-  const glowOpacity = dimmed ? 0.04 : 0.12;
-  const coreOpacity = dimmed ? 0.15 : 0.6;
+  const glowOpacity = (dimmed ? 0.04 : 0.12) * glowMultiplier;
+  const coreOpacity = (dimmed ? 0.15 : 0.6) * glowMultiplier;
 
   return (
     <group>

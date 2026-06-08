@@ -1,3 +1,27 @@
+/** Swirling dust motes around a launched constellation. */
+export interface PublishedDustAppearance {
+  enabled: boolean;
+  count: number;
+  /** Orbit radius multiplier relative to constellation span. */
+  orbitRadius: number;
+  /** Angular speed of the swirl. */
+  speed: number;
+  color: string;
+  opacity: number;
+}
+
+/** Visual treatment applied when a story is published / launched. */
+export interface PublishedEffectAppearance {
+  enabled: boolean;
+  /** Extra HSL saturation added to each star (0–50). */
+  starSaturationBoost: number;
+  /** Extra HSL lightness added to each star (0–30). */
+  starLightnessBoost: number;
+  /** Multiplier on edge glow and core opacity (1 = baseline). */
+  edgeGlowMultiplier: number;
+  dust: PublishedDustAppearance;
+}
+
 /**
  * Constellation presentation tokens — consumed by the cosmos realm camera,
  * star billboards, and ghost title typography. Admins can override via
@@ -28,6 +52,11 @@ export interface ConstellationAppearance {
   /** Reserved space below preview for the 2×2 HUD control grid (px). */
   controlsGridHeight: number;
   billboardDistanceFactor: number;
+  /** Scene names beneath preview cards (off by default — title lives on the arc). */
+  showSceneLabels: boolean;
+
+  /** Launched-story shimmer: brighter stars, edges, and optional dust swirl. */
+  publishedEffect: PublishedEffectAppearance;
 
   /** Camera — floating-in-space slide between stars. */
   cameraDefaultOffset: [number, number, number];
@@ -55,6 +84,22 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   labelGap: 10,
   controlsGridHeight: 92,
   billboardDistanceFactor: 10,
+  showSceneLabels: false,
+
+  publishedEffect: {
+    enabled: true,
+    starSaturationBoost: 18,
+    starLightnessBoost: 14,
+    edgeGlowMultiplier: 1.65,
+    dust: {
+      enabled: true,
+      count: 28,
+      orbitRadius: 1.35,
+      speed: 0.42,
+      color: "#c8dce8",
+      opacity: 0.5,
+    },
+  },
 
   cameraDefaultOffset: [0, 4, 12],
   cameraTargetOffset: [0, 0, 0],
@@ -65,5 +110,16 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
 export function mergeConstellationAppearance(
   overrides?: Partial<ConstellationAppearance>,
 ): ConstellationAppearance {
-  return { ...DEFAULT_CONSTELLATION_APPEARANCE, ...overrides };
+  const base = { ...DEFAULT_CONSTELLATION_APPEARANCE, ...overrides };
+  if (overrides?.publishedEffect) {
+    base.publishedEffect = {
+      ...DEFAULT_CONSTELLATION_APPEARANCE.publishedEffect,
+      ...overrides.publishedEffect,
+      dust: {
+        ...DEFAULT_CONSTELLATION_APPEARANCE.publishedEffect.dust,
+        ...overrides.publishedEffect.dust,
+      },
+    };
+  }
+  return base;
 }

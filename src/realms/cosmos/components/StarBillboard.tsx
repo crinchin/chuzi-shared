@@ -133,28 +133,30 @@ export function StarBillboard({
           </div>
         ) : null}
 
-        <div
-          style={{
-            marginTop: appearance.labelGap,
-            fontSize: appearance.labelFontSize,
-            fontWeight: 700,
-            letterSpacing: appearance.labelLetterSpacing,
-            textTransform: "uppercase",
-            color: "rgba(232,240,255,0.96)",
-            textAlign: "center",
-            textShadow:
-              "0 0 18px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.25)",
-            whiteSpace: "normal",
-            lineHeight: 1.2,
-            maxWidth: appearance.labelMaxWidth,
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-          }}
-        >
-          {label}
-        </div>
+        {appearance.showSceneLabels && label ? (
+          <div
+            style={{
+              marginTop: appearance.labelGap,
+              fontSize: appearance.labelFontSize,
+              fontWeight: 700,
+              letterSpacing: appearance.labelLetterSpacing,
+              textTransform: "uppercase",
+              color: "rgba(232,240,255,0.96)",
+              textAlign: "center",
+              textShadow:
+                "0 0 18px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.25)",
+              whiteSpace: "normal",
+              lineHeight: 1.2,
+              maxWidth: appearance.labelMaxWidth,
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {label}
+          </div>
+        ) : null}
       </div>
     </Html>
   );

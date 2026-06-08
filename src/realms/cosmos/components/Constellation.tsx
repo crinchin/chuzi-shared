@@ -12,6 +12,7 @@ import {
   type ConstellationStoryOverlay,
 } from "./ConstellationTitle.js";
 import { StarBillboard } from "./StarBillboard.js";
+import { PublishedConstellationAura } from "./PublishedConstellationAura.js";
 
 export interface ConstellationSceneEntry {
   id: string;
@@ -55,6 +56,8 @@ export interface ConstellationProps {
   appearance?: Partial<ConstellationAppearance>;
   /** When false, hide Html billboards and arc title (e.g. while editor is open). */
   showOverlays?: boolean;
+  /** When true and theme publishedEffect is enabled, stars/edges glow brighter. */
+  published?: boolean;
   onSceneSelect?: (index: number) => void;
 }
 
@@ -70,9 +73,20 @@ export function Constellation({
   edges = [],
   appearance: appearanceOverrides,
   showOverlays = true,
+  published = false,
   onSceneSelect,
 }: ConstellationProps) {
   const appearance = mergeConstellationAppearance(appearanceOverrides);
+  const publishedActive = published && appearance.publishedEffect.enabled;
+  const publishedBoost = publishedActive
+    ? {
+        saturationBoost: appearance.publishedEffect.starSaturationBoost,
+        lightnessBoost: appearance.publishedEffect.starLightnessBoost,
+      }
+    : undefined;
+  const edgeGlowMultiplier = publishedActive
+    ? appearance.publishedEffect.edgeGlowMultiplier
+    : 1;
   const sceneMap = new Map(scenes.map((s, i) => [s.id, { entry: s, index: i }]));
   const bounds = computeConstellationBounds(
     scenes.map((s) => s.visual.position),
@@ -100,6 +114,15 @@ export function Constellation({
 
   return (
     <group>
+      {publishedActive &&
+      appearance.publishedEffect.dust.enabled &&
+      bounds ? (
+        <PublishedConstellationAura
+          bounds={bounds}
+          dust={appearance.publishedEffect.dust}
+        />
+      ) : null}
+
       {showOverlays && storyTitle && bounds ? (
         <ConstellationTitle
           title={storyTitle}
@@ -117,6 +140,7 @@ export function Constellation({
             visual={{ ...entry.visual, position: [0, 0, 0] }}
             dimmed={entry.dimmed}
             locked={entry.locked}
+            publishedBoost={publishedBoost}
             onSelect={onSceneSelect ? () => onSceneSelect(i) : undefined}
           />
 
@@ -148,6 +172,7 @@ export function Constellation({
             intensityA={from.visual.intensity}
             intensityB={to.visual.intensity}
             dimmed={edgeDimmed}
+            glowMultiplier={edgeGlowMultiplier}
           />
         );
       })}

@@ -10,6 +10,8 @@ export interface StarProps {
   dimmed?: boolean;
   /** Non-navigable — suppresses click and lowers brightness further. */
   locked?: boolean;
+  /** Launched-story boost — extra saturation and lightness from theme tokens. */
+  publishedBoost?: { saturationBoost: number; lightnessBoost: number };
 }
 
 /**
@@ -18,20 +20,23 @@ export interface StarProps {
  * breathe in lockstep — gives the field life without per-star animation
  * state.
  */
-export function Star({ visual, onSelect, dimmed, locked }: StarProps) {
+export function Star({ visual, onSelect, dimmed, locked, publishedBoost }: StarProps) {
   const ref = useRef<Mesh>(null);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const phase = visual.position[0] * 0.7 + visual.position[2] * 0.3;
-    const pulse = 1 + Math.sin(clock.elapsedTime * 0.8 + phase) * 0.05;
+    const pulseAmp = publishedBoost ? 0.08 : 0.05;
+    const pulse = 1 + Math.sin(clock.elapsedTime * 0.8 + phase) * pulseAmp;
     ref.current.scale.setScalar(visual.scale * pulse);
   });
 
-  const saturation = dimmed || locked ? 25 : 75;
-  const lightness = dimmed || locked
+  const boostSat = publishedBoost?.saturationBoost ?? 0;
+  const boostLight = publishedBoost?.lightnessBoost ?? 0;
+  const saturation = (dimmed || locked ? 25 : 75) + boostSat;
+  const lightness = (dimmed || locked
     ? 25 + visual.intensity * 10
-    : 50 + visual.intensity * 25;
+    : 50 + visual.intensity * 25) + boostLight;
   const color = `hsl(${visual.hue}, ${saturation}%, ${lightness}%)`;
 
   const handleClick = locked

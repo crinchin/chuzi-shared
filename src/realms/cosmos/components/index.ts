@@ -57,4 +57,11 @@ export {
   DEFAULT_CONSTELLATION_APPEARANCE,
   mergeConstellationAppearance,
 } from "../appearance.js";
-export type { ConstellationAppearance } from "../appearance.js";
+export type {
+  ConstellationAppearance,
+  PublishedEffectAppearance,
+  PublishedDustAppearance,
+} from "../appearance.js";
+
+export { PublishedConstellationAura } from "./PublishedConstellationAura.js";
+export type { PublishedConstellationAuraProps } from "./PublishedConstellationAura.js";
