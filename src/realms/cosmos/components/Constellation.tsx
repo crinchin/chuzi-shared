@@ -56,6 +56,8 @@ export interface ConstellationProps {
   appearance?: Partial<ConstellationAppearance>;
   /** When false, hide Html billboards and arc title (e.g. while editor is open). */
   showOverlays?: boolean;
+  /** When false, hide the arched story title (e.g. unfocused constellations). */
+  showStoryTitle?: boolean;
   /** When true and theme publishedEffect is enabled, stars/edges glow brighter. */
   published?: boolean;
   onSceneSelect?: (index: number) => void;
@@ -73,6 +75,7 @@ export function Constellation({
   edges = [],
   appearance: appearanceOverrides,
   showOverlays = true,
+  showStoryTitle = true,
   published = false,
   onSceneSelect,
 }: ConstellationProps) {
@@ -123,7 +126,7 @@ export function Constellation({
         />
       ) : null}
 
-      {showOverlays && storyTitle && bounds ? (
+      {showOverlays && showStoryTitle && storyTitle && bounds ? (
         <ConstellationTitle
           title={storyTitle}
           bounds={bounds}
