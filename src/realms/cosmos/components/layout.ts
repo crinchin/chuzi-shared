@@ -729,3 +729,64 @@ export function distributeConstellationAnchors(
 
   return anchors;
 }
+
+export interface ClusterAnchorResult {
+  anchors: Map<string, Vec3>;
+  clusters: {
+    published: { center: Vec3; radius: number };
+    unpublished: { center: Vec3; radius: number };
+  };
+}
+
+export interface ClusteredAnchorInput extends ConstellationAnchorInput {
+  published: boolean;
+}
+
+const CLUSTER_SEPARATION = 35;
+
+/**
+ * Distribute constellations into two spatial clusters (published / unpublished).
+ * Published cluster is placed at positive X, unpublished at negative X.
+ * Returns per-constellation anchors plus cluster center + radius for nebula rendering.
+ */
+export function distributeClusteredConstellationAnchors(
+  items: ClusteredAnchorInput[],
+  options: ConstellationAnchorOptions = {},
+): ClusterAnchorResult {
+  const published = items.filter((i) => i.published);
+  const unpublished = items.filter((i) => !i.published);
+
+  const pubOffset: Vec3 = [CLUSTER_SEPARATION / 2, 0, 0];
+  const unpubOffset: Vec3 = [-CLUSTER_SEPARATION / 2, 0, 0];
+
+  const pubAnchors = distributeConstellationAnchors(published, options);
+  const unpubAnchors = distributeConstellationAnchors(unpublished, options);
+
+  const anchors = new Map<string, Vec3>();
+
+  let pubMaxReach = 10;
+  for (const [id, pos] of pubAnchors) {
+    const shifted: Vec3 = [pos[0] + pubOffset[0], pos[1], pos[2] + pubOffset[2]];
+    anchors.set(id, shifted);
+    const reach = Math.hypot(pos[0], pos[2]);
+    const item = published.find((i) => i.id === id);
+    pubMaxReach = Math.max(pubMaxReach, reach + (item?.footprintRadius ?? 10));
+  }
+
+  let unpubMaxReach = 10;
+  for (const [id, pos] of unpubAnchors) {
+    const shifted: Vec3 = [pos[0] + unpubOffset[0], pos[1], pos[2] + unpubOffset[2]];
+    anchors.set(id, shifted);
+    const reach = Math.hypot(pos[0], pos[2]);
+    const item = unpublished.find((i) => i.id === id);
+    unpubMaxReach = Math.max(unpubMaxReach, reach + (item?.footprintRadius ?? 10));
+  }
+
+  return {
+    anchors,
+    clusters: {
+      published: { center: pubOffset, radius: pubMaxReach },
+      unpublished: { center: unpubOffset, radius: unpubMaxReach },
+    },
+  };
+}

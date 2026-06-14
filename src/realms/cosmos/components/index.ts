@@ -20,6 +20,7 @@ export type { CosmosSandboxProps } from "./CosmosSandbox.js";
 export {
   distributeStars,
   distributeConstellationAnchors,
+  distributeClusteredConstellationAnchors,
   computeConstellationScenePositions,
   constellationFootprintRadius,
   COSMOS_SCENE_LEVEL_SPACING,
@@ -41,6 +42,8 @@ export type {
   ConstellationLayoutGraph,
   ConstellationAnchorInput,
   ConstellationAnchorOptions,
+  ClusteredAnchorInput,
+  ClusterAnchorResult,
 } from "./layout.js";
 
 export { ConstellationTitle, computeConstellationBounds } from "./ConstellationTitle.js";
@@ -65,3 +68,9 @@ export type {
 
 export { PublishedConstellationAura } from "./PublishedConstellationAura.js";
 export type { PublishedConstellationAuraProps } from "./PublishedConstellationAura.js";
+
+export { ClusterNebula } from "./ClusterNebula.js";
+export type { ClusterNebulaProps } from "./ClusterNebula.js";
+
+export { ClusterLabel } from "./ClusterLabel.js";
+export type { ClusterLabelProps } from "./ClusterLabel.js";

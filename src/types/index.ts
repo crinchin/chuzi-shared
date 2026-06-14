@@ -635,7 +635,11 @@ export interface AiStoryEstimateResponse {
 }
 
 export interface AiStoryGenerateRequest {
-  answers: Record<string, string>;
+  answers?: Record<string, string>;
+  vibes?: string[];
+  character_count?: number;
+  details?: string;
+  max_scenes?: number;
 }
 
 export interface AiStoryGenerationResult {
