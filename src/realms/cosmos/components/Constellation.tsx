@@ -97,9 +97,7 @@ export function Constellation({
 
   const titleScene =
     scenes.find((s) => s.isTitle) ?? scenes[0];
-  const endScene =
-    scenes.find((s) => s.isEnd) ??
-    scenes[scenes.length - 1];
+  const lastScene = scenes[scenes.length - 1];
 
   const resolvedEdges: {
     from: ConstellationSceneEntry;
@@ -132,7 +130,7 @@ export function Constellation({
           bounds={bounds}
           appearance={appearance}
           arcFrom={titleScene?.visual.position}
-          arcTo={endScene?.visual.position}
+          arcTo={lastScene?.visual.position}
           storyOverlay={storyOverlay}
         />
       ) : null}

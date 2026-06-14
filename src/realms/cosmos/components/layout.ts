@@ -122,7 +122,6 @@ function sortScenesForConstellationLayout(
 ): ConstellationLayoutScene[] {
   return [...sceneList].sort((a, b) => {
     if (a.is_title !== b.is_title) return a.is_title ? -1 : 1;
-    if (a.is_end !== b.is_end) return a.is_end ? 1 : -1;
     const orderA = a.order ?? 0;
     const orderB = b.order ?? 0;
     if (orderA !== orderB) return orderA - orderB;
@@ -510,7 +509,7 @@ function layoutFromGraphEdges(
     if (!parentPos) continue;
 
     const kids = (childrenByParent.get(parentId) ?? []).filter(
-      (childId) => sceneById.has(childId) && !sceneById.get(childId)?.is_end,
+      (childId) => sceneById.has(childId),
     );
 
     kids.forEach((childId, idx) => {
@@ -560,8 +559,6 @@ function layoutFromGraphEdges(
       queue.push(childId);
     });
   }
-
-  placeEndScenes(ordered, positions, anchor);
 
   let spineLevel = 0;
   for (const scene of ordered) {
@@ -617,7 +614,6 @@ export function computeConstellationScenePositions(
   let spineIndex = 0;
   for (const scene of ordered) {
     if (scene.id === root.id) continue;
-    if (scene.is_end) continue;
 
     const angle = spineIndex * GOLDEN_ANGLE + hashSceneId(scene.id) * 0.55;
     const reach =
@@ -634,8 +630,6 @@ export function computeConstellationScenePositions(
     ]);
     spineIndex += 1;
   }
-
-  placeEndScenes(ordered, positions, anchor);
 
   for (let i = 1; i < ordered.length; i++) {
     clampEdgeLength(

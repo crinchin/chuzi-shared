@@ -58,7 +58,7 @@ export interface ConstellationTitleProps {
   appearance: ConstellationAppearance;
   /** World position of the title (first) scene — arc starts here. */
   arcFrom?: [number, number, number];
-  /** World position of the end scene — arc ends here. */
+  /** World position of the last scene — arc ends here. */
   arcTo?: [number, number, number];
   storyOverlay?: ConstellationStoryOverlay;
 }
@@ -79,7 +79,7 @@ function estimateTitlePathWidth(
 }
 
 /**
- * Vintage cartography-style ocean label arcing from title scene to end scene.
+ * Vintage cartography-style ocean label arcing from title scene to last scene.
  */
 export function ConstellationTitle({
   title,

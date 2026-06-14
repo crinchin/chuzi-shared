@@ -851,7 +851,7 @@ export interface SceneVisibility {
  * - Otherwise non-title scenes are locked and dimmed.
  */
 export function computeSceneVisibility(
-  sceneList: Pick<SceneListItem, "is_title" | "is_end">[],
+  sceneList: Pick<SceneListItem, "is_title">[],
   opts: { isCreator: boolean; endingSeen: boolean },
 ): SceneVisibility[] {
   if (opts.isCreator || opts.endingSeen) {
