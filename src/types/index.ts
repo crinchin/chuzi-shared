@@ -1,7 +1,8 @@
 // ── Auth ──
 
 export interface MagicLinkRequest {
-  email: string;
+  email?: string;
+  identifier?: string;
   username?: string;
   device_name?: string;
 }
@@ -11,7 +12,8 @@ export interface MagicLinkRequestResponse {
 }
 
 export interface MagicLinkVerifyRequest {
-  email: string;
+  email?: string;
+  identifier?: string;
   token: string;
   device_name?: string;
 }
