@@ -187,8 +187,12 @@ export interface ChuziClient {
     user(): Promise<UserProfile>;
   };
   catalog: {
-    index(opts?: { signal?: AbortSignal }): Promise<CatalogResponse>;
-    byCreator(userId: string, opts?: { signal?: AbortSignal }): Promise<CatalogResponse>;
+    index(opts?: {
+      signal?: AbortSignal;
+      tag?: string;
+      creator_id?: string;
+    }): Promise<CatalogResponse>;
+    byCreator(userId: string, opts?: { signal?: AbortSignal; tag?: string }): Promise<CatalogResponse>;
   };
   config: {
     realms(opts?: { locale?: LocaleId; signal?: AbortSignal }): Promise<RealmConfigResponse>;
@@ -202,7 +206,7 @@ export interface ChuziClient {
     destroy(id: string): Promise<void>;
   };
   tags: {
-    index(opts?: { signal?: AbortSignal }): Promise<TagListResponse>;
+    index(opts?: { signal?: AbortSignal; q?: string }): Promise<TagListResponse>;
   };
   scenes: {
     index(storyId: string, opts?: { signal?: AbortSignal }): Promise<SceneListItem[]>;
@@ -315,11 +319,21 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       user: () => request("GET", "/api/v1/auth/user"),
     },
     catalog: {
-      index: (opts) => request("GET", "/api/v1/catalog", opts),
+      index: (opts) =>
+        request("GET", "/api/v1/catalog", {
+          signal: opts?.signal,
+          query: {
+            tag: opts?.tag,
+            creator_id: opts?.creator_id,
+          },
+        }),
       byCreator: (userId, opts) =>
         request("GET", "/api/v1/catalog", {
           signal: opts?.signal,
-          query: { creator_id: userId },
+          query: {
+            creator_id: userId,
+            tag: opts?.tag,
+          },
         }),
     },
     config: {
@@ -338,7 +352,11 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       destroy: (id) => request("DELETE", `/api/v1/stories/${encodeURIComponent(id)}`),
     },
     tags: {
-      index: (opts) => request("GET", "/api/v1/tags", opts),
+      index: (opts) =>
+        request("GET", "/api/v1/tags", {
+          signal: opts?.signal,
+          query: { q: opts?.q },
+        }),
     },
     scenes: {
       index: (storyId, opts) =>
