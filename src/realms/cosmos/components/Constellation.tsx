@@ -67,6 +67,10 @@ export interface ConstellationProps {
   onSceneSelect?: (index: number) => void;
   /** Live position updates while dragging a scene star. */
   onScenePositionChange?: (sceneId: string, position: Vec3) => void;
+  /** Fired when a drag gesture begins (after the pointer threshold). */
+  onSceneDragStart?: (sceneId: string) => void;
+  /** Fired when a drag gesture ends, before persistence. */
+  onSceneDragEnd?: (sceneId: string) => void;
   /** Persisted when a drag gesture completes. */
   onScenePositionCommit?: (sceneId: string, position: Vec3) => void;
 }
@@ -87,6 +91,8 @@ export function Constellation({
   published = false,
   onSceneSelect,
   onScenePositionChange,
+  onSceneDragStart,
+  onSceneDragEnd,
   onScenePositionCommit,
 }: ConstellationProps) {
   const appearance = mergeConstellationAppearance(appearanceOverrides);
@@ -163,9 +169,15 @@ export function Constellation({
               ? (pos) => onScenePositionChange(entry.id, pos)
               : undefined
           }
+          onDragStart={
+            onSceneDragStart ? () => onSceneDragStart(entry.id) : undefined
+          }
           onDragEnd={
-            onScenePositionCommit
-              ? (pos) => onScenePositionCommit(entry.id, pos)
+            onSceneDragEnd || onScenePositionCommit
+              ? (pos) => {
+                  onSceneDragEnd?.(entry.id);
+                  onScenePositionCommit?.(entry.id, pos);
+                }
               : undefined
           }
           onTap={

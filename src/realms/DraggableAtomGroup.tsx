@@ -11,6 +11,8 @@ export interface DraggableAtomGroupProps {
   /** Plane normal for drag raycast (default: horizontal XZ). */
   dragPlaneNormal?: [number, number, number];
   onPositionChange?: (position: [number, number, number]) => void;
+  /** Fired once when pointer movement crosses the drag threshold. */
+  onDragStart?: () => void;
   onDragEnd?: (position: [number, number, number]) => void;
   /** Fired on pointer up when the gesture was a tap, not a drag. */
   onTap?: () => void;
@@ -27,6 +29,7 @@ export function DraggableAtomGroup({
   enabled = false,
   dragPlaneNormal = [0, 1, 0],
   onPositionChange,
+  onDragStart,
   onDragEnd,
   onTap,
   children,
@@ -95,7 +98,10 @@ export function DraggableAtomGroup({
       const dx = e.clientX - pointerStart.current.x;
       const dy = e.clientY - pointerStart.current.y;
       if (!dragStarted.current && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
-      if (!dragStarted.current) dragStarted.current = true;
+      if (!dragStarted.current) {
+        dragStarted.current = true;
+        onDragStart?.();
+      }
       e.stopPropagation();
       const hit = pointerToWorld(e.clientX, e.clientY);
       if (!hit) return;
@@ -106,7 +112,7 @@ export function DraggableAtomGroup({
       ];
       onPositionChange?.(next);
     },
-    [enabled, onPositionChange, pointerToWorld],
+    [enabled, onDragStart, onPositionChange, pointerToWorld],
   );
 
   const handlePointerUp = useCallback(
