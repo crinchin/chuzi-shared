@@ -46,9 +46,10 @@ export type {
   ClusterAnchorResult,
 } from "./layout.js";
 
-export { ConstellationTitle, computeConstellationBounds } from "./ConstellationTitle.js";
+export { ConstellationTitle, ConstellationStoryTitleInline, computeConstellationBounds } from "./ConstellationTitle.js";
 export type {
   ConstellationTitleProps,
+  ConstellationStoryTitleInlineProps,
   ConstellationBounds,
   ConstellationStoryOverlay,
 } from "./ConstellationTitle.js";

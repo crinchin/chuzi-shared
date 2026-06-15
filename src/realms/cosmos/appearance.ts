@@ -35,6 +35,10 @@ export interface ConstellationAppearance {
   titleLetterSpacing: number;
   /** World-space lift above constellation center. */
   titleYOffset: number;
+  /** Gap between focused preview controls and inline story title (px). */
+  titleBelowPreviewGap: number;
+  /** Inline title under preview — smaller arc typography (SVG px). */
+  titleBelowPreviewFontSize: number;
   /** Html distance factor for the arc title billboard. */
   titleDistanceFactor: number;
   /** DOM z-index ceiling for constellation Html overlays (keep below editor). */
@@ -72,6 +76,8 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   titleColor: "#c8dce8",
   titleLetterSpacing: 6,
   titleYOffset: 16,
+  titleBelowPreviewGap: 6,
+  titleBelowPreviewFontSize: 22,
   titleDistanceFactor: 12,
   htmlZIndexRange: [8, 0],
 

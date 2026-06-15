@@ -12,6 +12,10 @@ export interface StarBillboardProps {
   visible?: boolean;
   /** Control strip rendered flush beneath the preview when focused. */
   controlsSlot?: ReactNode;
+  /** Story title + credits rendered beneath controls when focused. */
+  storyTitleSlot?: ReactNode;
+  /** Focus this star when the preview card is clicked. */
+  onPreviewClick?: () => void;
 }
 
 /**
@@ -28,6 +32,8 @@ export function StarBillboard({
   focused,
   visible = true,
   controlsSlot,
+  storyTitleSlot,
+  onPreviewClick,
 }: StarBillboardProps) {
   if (!visible) return null;
 
@@ -39,6 +45,7 @@ export function StarBillboard({
     ? "brightness(1.08) saturate(1.1)"
     : "brightness(0.72) saturate(0.65)";
   const hasControls = !!(focused && controlsSlot);
+  const previewClickable = !!onPreviewClick;
 
   return (
     <Html
@@ -49,7 +56,7 @@ export function StarBillboard({
       zIndexRange={appearance.htmlZIndexRange}
       occlude={false}
       style={{
-        pointerEvents: "none",
+        pointerEvents: previewClickable || hasControls || !!storyTitleSlot ? "auto" : "none",
         userSelect: "none",
       }}
     >
@@ -74,6 +81,28 @@ export function StarBillboard({
       >
         <div
           key={focused ? "focused" : "unfocused"}
+          role={previewClickable ? "button" : undefined}
+          tabIndex={previewClickable ? 0 : undefined}
+          aria-label={previewClickable ? label || undefined : undefined}
+          onClick={
+            previewClickable
+              ? (e) => {
+                  e.stopPropagation();
+                  onPreviewClick?.();
+                }
+              : undefined
+          }
+          onKeyDown={
+            previewClickable
+              ? (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onPreviewClick?.();
+                  }
+                }
+              : undefined
+          }
           style={{
             width: appearance.previewWidth,
             height: appearance.previewHeight,
@@ -94,6 +123,7 @@ export function StarBillboard({
             animation: focused
               ? "chuziPreviewFocusIn 0.48s cubic-bezier(0.34, 1.45, 0.64, 1) forwards"
               : "chuziPreviewFocusOut 0.32s ease forwards",
+            cursor: previewClickable ? "pointer" : undefined,
           }}
         >
           {previewImageUrl ? (
@@ -132,6 +162,8 @@ export function StarBillboard({
             {controlsSlot}
           </div>
         ) : null}
+
+        {focused && storyTitleSlot ? storyTitleSlot : null}
 
         {appearance.showSceneLabels && label ? (
           <div

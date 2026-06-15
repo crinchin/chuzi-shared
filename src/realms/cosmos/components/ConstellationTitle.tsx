@@ -63,6 +63,12 @@ export interface ConstellationTitleProps {
   storyOverlay?: ConstellationStoryOverlay;
 }
 
+export interface ConstellationStoryTitleInlineProps {
+  title: string;
+  appearance: ConstellationAppearance;
+  storyOverlay?: ConstellationStoryOverlay;
+}
+
 const WORLD_TO_SVG = 58;
 const ARC_HORIZONTAL_PAD = 72;
 
@@ -76,6 +82,194 @@ function estimateTitlePathWidth(
   if (chars === 0) return 0;
   const glyphWidth = fontSize * 0.62;
   return chars * glyphWidth + Math.max(0, chars - 1) * letterSpacing + 56;
+}
+
+/**
+ * Compact arched story title for placement beneath a focused preview card.
+ */
+export function ConstellationStoryTitleInline({
+  title,
+  appearance,
+  storyOverlay,
+}: ConstellationStoryTitleInlineProps) {
+  const gradientId = useId().replace(/:/g, "");
+  const pathId = `arc-inline-${gradientId}`;
+
+  if (!title.trim()) return null;
+
+  const fontSize = appearance.titleBelowPreviewFontSize;
+  const letterSpacing = appearance.titleLetterSpacing * 0.65;
+  const minArcSpan = Math.max(
+    180,
+    estimateTitlePathWidth(title, fontSize, letterSpacing),
+  );
+  const svgWidth = Math.max(280, Math.ceil(minArcSpan + ARC_HORIZONTAL_PAD * 2));
+  const svgHeight = 72;
+  const viewPadX = 20;
+  const viewPadY = 8;
+  const centerX = svgWidth / 2;
+  const arcY = svgHeight * 0.86;
+  const arcPeak = svgHeight * 0.12;
+  const arcStartX = centerX - minArcSpan / 2;
+  const arcEndX = centerX + minArcSpan / 2;
+  const arcMidX = centerX;
+  const arcPath = `M ${arcStartX} ${arcY} Q ${arcMidX} ${arcPeak} ${arcEndX} ${arcY}`;
+
+  const editable = !!(storyOverlay?.editable && storyOverlay.onEditClick);
+  const hasDirector = !!(
+    storyOverlay?.directorName && storyOverlay.directorName.trim()
+  );
+  const hasRatingGenre = !!(
+    storyOverlay?.contentRating || storyOverlay?.genre
+  );
+  const showOverlay = hasDirector || hasRatingGenre;
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 4,
+        marginTop: appearance.titleBelowPreviewGap,
+        pointerEvents: editable ? "auto" : "none",
+      }}
+    >
+      <StoryTitleArcSvg
+        title={title}
+        arcPath={arcPath}
+        gradientId={gradientId}
+        pathId={pathId}
+        svgWidth={svgWidth}
+        svgHeight={svgHeight}
+        viewPadX={viewPadX}
+        viewPadY={viewPadY}
+        fontSize={fontSize}
+        letterSpacing={letterSpacing}
+        opacity={appearance.titleOpacity}
+        editable={editable}
+        editAriaLabel={storyOverlay?.editAriaLabel}
+        onEditClick={storyOverlay?.onEditClick}
+      />
+
+      {showOverlay ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            maxWidth: svgWidth,
+            pointerEvents: "none",
+          }}
+        >
+          {hasDirector ? (
+            <DirectorCredit
+              prefix={storyOverlay!.chosenByPrefix}
+              name={storyOverlay!.directorName!}
+              avatarUrl={storyOverlay!.directorAvatarUrl ?? null}
+              avatarFallback={storyOverlay!.directorAvatarFallback}
+            />
+          ) : null}
+
+          {hasRatingGenre ? (
+            <RatingGenreLine
+              contentRating={storyOverlay!.contentRating ?? null}
+              genre={storyOverlay!.genre ?? null}
+              separator={storyOverlay!.ratingGenreSeparator ?? " · "}
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function StoryTitleArcSvg({
+  title,
+  arcPath,
+  gradientId,
+  pathId,
+  svgWidth,
+  svgHeight,
+  viewPadX,
+  viewPadY,
+  fontSize,
+  letterSpacing,
+  opacity,
+  editable,
+  editAriaLabel,
+  onEditClick,
+}: {
+  title: string;
+  arcPath: string;
+  gradientId: string;
+  pathId: string;
+  svgWidth: number;
+  svgHeight: number;
+  viewPadX: number;
+  viewPadY: number;
+  fontSize: number;
+  letterSpacing: number;
+  opacity: number;
+  editable: boolean;
+  editAriaLabel?: string;
+  onEditClick?: () => void;
+}) {
+  return (
+    <svg
+      width={svgWidth}
+      height={svgHeight}
+      viewBox={`${-viewPadX} ${-viewPadY} ${svgWidth + viewPadX * 2} ${svgHeight + viewPadY}`}
+      style={{
+        overflow: "visible",
+        display: "block",
+        cursor: editable ? "pointer" : undefined,
+      }}
+      aria-hidden={editable ? undefined : true}
+      role={editable ? "button" : undefined}
+      tabIndex={editable ? 0 : undefined}
+      aria-label={editable ? editAriaLabel : undefined}
+      onClick={editable ? onEditClick : undefined}
+      onKeyDown={
+        editable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onEditClick?.();
+              }
+            }
+          : undefined
+      }
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#8ab4c8" />
+          <stop offset="35%" stopColor="#c8d8e4" />
+          <stop offset="65%" stopColor="#e8dcc8" />
+          <stop offset="100%" stopColor="#8ab4c8" />
+        </linearGradient>
+        <path id={pathId} d={arcPath} fill="none" />
+      </defs>
+      <text
+        fill={`url(#${gradientId})`}
+        fontFamily="'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif"
+        fontSize={fontSize}
+        fontWeight={700}
+        fontStyle="italic"
+        letterSpacing={letterSpacing}
+        opacity={opacity}
+        stroke="rgba(20,40,60,0.35)"
+        strokeWidth={0.6}
+        paintOrder="stroke fill"
+        style={{ pointerEvents: "none" }}
+      >
+        <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
+          {title.toUpperCase()}
+        </textPath>
+      </text>
+    </svg>
+  );
 }
 
 /**
@@ -164,58 +358,22 @@ export function ConstellationTitle({
   const showOverlay = hasDirector || hasRatingGenre;
 
   const titleControl = (
-    <svg
-      width={svgWidth}
-      height={svgHeight}
-      viewBox={`${-viewPadX} ${-viewPadY} ${svgWidth + viewPadX * 2} ${svgHeight + viewPadY}`}
-      style={{
-        overflow: "visible",
-        display: "block",
-        cursor: editable ? "pointer" : undefined,
-      }}
-      aria-hidden={editable ? undefined : true}
-      role={editable ? "button" : undefined}
-      tabIndex={editable ? 0 : undefined}
-      aria-label={editable ? storyOverlay?.editAriaLabel : undefined}
-      onClick={editable ? storyOverlay?.onEditClick : undefined}
-      onKeyDown={
-        editable
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                storyOverlay?.onEditClick?.();
-              }
-            }
-          : undefined
-      }
-    >
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#8ab4c8" />
-          <stop offset="35%" stopColor="#c8d8e4" />
-          <stop offset="65%" stopColor="#e8dcc8" />
-          <stop offset="100%" stopColor="#8ab4c8" />
-        </linearGradient>
-        <path id={pathId} d={arcPath} fill="none" />
-      </defs>
-      <text
-        fill={`url(#${gradientId})`}
-        fontFamily="'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif"
-        fontSize={appearance.titleFontSize}
-        fontWeight={700}
-        fontStyle="italic"
-        letterSpacing={appearance.titleLetterSpacing}
-        opacity={appearance.titleOpacity}
-        stroke="rgba(20,40,60,0.35)"
-        strokeWidth={0.6}
-        paintOrder="stroke fill"
-        style={{ pointerEvents: "none" }}
-      >
-        <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
-          {title.toUpperCase()}
-        </textPath>
-      </text>
-    </svg>
+    <StoryTitleArcSvg
+      title={title}
+      arcPath={arcPath}
+      gradientId={gradientId}
+      pathId={pathId}
+      svgWidth={svgWidth}
+      svgHeight={svgHeight}
+      viewPadX={viewPadX}
+      viewPadY={viewPadY}
+      fontSize={appearance.titleFontSize}
+      letterSpacing={appearance.titleLetterSpacing}
+      opacity={appearance.titleOpacity}
+      editable={editable}
+      editAriaLabel={storyOverlay?.editAriaLabel}
+      onEditClick={storyOverlay?.onEditClick}
+    />
   );
 
   return (

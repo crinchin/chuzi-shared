@@ -8,6 +8,7 @@ import { Star } from "./Star.js";
 import { ConstellationEdge } from "./ConstellationEdge.js";
 import {
   ConstellationTitle,
+  ConstellationStoryTitleInline,
   computeConstellationBounds,
   type ConstellationStoryOverlay,
 } from "./ConstellationTitle.js";
@@ -94,6 +95,9 @@ export function Constellation({
   const bounds = computeConstellationBounds(
     scenes.map((s) => s.visual.position),
   );
+  const focusedSceneIndex = scenes.findIndex((s) => s.focused);
+  const showInlineStoryTitle =
+    showStoryTitle && !!storyTitle && focusedSceneIndex >= 0;
 
   const titleScene =
     scenes.find((s) => s.isTitle) ?? scenes[0];
@@ -124,7 +128,11 @@ export function Constellation({
         />
       ) : null}
 
-      {showOverlays && showStoryTitle && storyTitle && bounds ? (
+      {showOverlays &&
+      showStoryTitle &&
+      storyTitle &&
+      bounds &&
+      !showInlineStoryTitle ? (
         <ConstellationTitle
           title={storyTitle}
           bounds={bounds}
@@ -155,6 +163,20 @@ export function Constellation({
               dimmed={entry.dimmed}
               focused={entry.focused}
               controlsSlot={entry.controlsSlot}
+              storyTitleSlot={
+                showInlineStoryTitle && i === focusedSceneIndex ? (
+                  <ConstellationStoryTitleInline
+                    title={storyTitle!}
+                    appearance={appearance}
+                    storyOverlay={storyOverlay}
+                  />
+                ) : undefined
+              }
+              onPreviewClick={
+                onSceneSelect && !entry.locked
+                  ? () => onSceneSelect(i)
+                  : undefined
+              }
               visible={showOverlays}
             />
           ) : null}
