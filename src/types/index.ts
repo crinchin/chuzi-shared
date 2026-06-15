@@ -621,7 +621,11 @@ export interface AiStoryScenePayload {
 }
 
 export interface AiStoryEstimateRequest {
-  answers: Record<string, string>;
+  answers?: Record<string, string>;
+  vibes?: string[];
+  character_count?: number;
+  details?: string;
+  max_scenes?: number;
 }
 
 export interface AiStoryTokenEstimate {
