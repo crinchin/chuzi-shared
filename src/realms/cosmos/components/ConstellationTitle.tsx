@@ -289,7 +289,9 @@ export function ConstellationTitle({
   if (!title.trim()) return null;
 
   const titlePos = bounds.center;
+  const boundsSpanSvg = bounds.spanX * WORLD_TO_SVG;
   const minArcSpan = Math.max(
+    boundsSpanSvg,
     300,
     estimateTitlePathWidth(
       title,
@@ -309,6 +311,7 @@ export function ConstellationTitle({
   const arcSpanNeeded = Math.max(
     minArcSpan,
     Math.abs(endOffsetX - titleOffsetX) + 48,
+    boundsSpanSvg,
   );
   const svgWidth = Math.max(
     420,
@@ -319,8 +322,8 @@ export function ConstellationTitle({
   const viewPadY = 10;
 
   const centerX = svgWidth / 2;
-  const arcY = svgHeight * 0.88;
-  const arcPeak = svgHeight * 0.06;
+  const arcY = svgHeight * 0.14;
+  const arcPeak = svgHeight * 0.92;
 
   let arcStartX = centerX + titleOffsetX;
   let arcEndX = centerX + endOffsetX;
@@ -348,6 +351,22 @@ export function ConstellationTitle({
   const arcMidX = (arcStartX + arcEndX) / 2;
   const arcPath = `M ${arcStartX} ${arcY} Q ${arcMidX} ${arcPeak} ${arcEndX} ${arcY}`;
 
+  const arcPathWidth = arcEndX - arcStartX;
+  const baseLetterSpacing = appearance.titleLetterSpacing;
+  const chars = title.trim().length;
+  let letterSpacing = baseLetterSpacing;
+  if (chars > 1 && arcPathWidth > 0) {
+    const glyphWidth = appearance.titleFontSize * 0.62;
+    const textWidth =
+      chars * glyphWidth + Math.max(0, chars - 1) * baseLetterSpacing + 56;
+    const targetWidth = arcPathWidth * 0.92;
+    if (textWidth < targetWidth) {
+      letterSpacing =
+        (targetWidth - chars * glyphWidth - 56) / Math.max(1, chars - 1);
+      letterSpacing = Math.max(baseLetterSpacing, letterSpacing);
+    }
+  }
+
   const editable = !!(storyOverlay?.editable && storyOverlay.onEditClick);
   const hasDirector = !!(
     storyOverlay?.directorName && storyOverlay.directorName.trim()
@@ -368,7 +387,7 @@ export function ConstellationTitle({
       viewPadX={viewPadX}
       viewPadY={viewPadY}
       fontSize={appearance.titleFontSize}
-      letterSpacing={appearance.titleLetterSpacing}
+      letterSpacing={letterSpacing}
       opacity={appearance.titleOpacity}
       editable={editable}
       editAriaLabel={storyOverlay?.editAriaLabel}

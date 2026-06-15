@@ -8,7 +8,6 @@ import { Star } from "./Star.js";
 import { ConstellationEdge } from "./ConstellationEdge.js";
 import {
   ConstellationTitle,
-  ConstellationStoryTitleInline,
   computeConstellationBounds,
   type ConstellationStoryOverlay,
 } from "./ConstellationTitle.js";
@@ -92,16 +91,21 @@ export function Constellation({
     ? appearance.publishedEffect.edgeGlowMultiplier
     : 1;
   const sceneMap = new Map(scenes.map((s, i) => [s.id, { entry: s, index: i }]));
-  const bounds = computeConstellationBounds(
-    scenes.map((s) => s.visual.position),
-  );
-  const focusedSceneIndex = scenes.findIndex((s) => s.focused);
-  const showInlineStoryTitle =
-    showStoryTitle && !!storyTitle && focusedSceneIndex >= 0;
+  const scenePositions = scenes.map((s) => s.visual.position);
+  const bounds = computeConstellationBounds(scenePositions);
 
   const titleScene =
     scenes.find((s) => s.isTitle) ?? scenes[0];
   const lastScene = scenes[scenes.length - 1];
+
+  const arcSpanPositions =
+    scenePositions.length >= 2
+      ? [...scenePositions].sort((a, b) => a[0] - b[0])
+      : null;
+  const arcFrom = arcSpanPositions?.[0] ?? titleScene?.visual.position;
+  const arcTo =
+    arcSpanPositions?.[arcSpanPositions.length - 1] ??
+    lastScene?.visual.position;
 
   const resolvedEdges: {
     from: ConstellationSceneEntry;
@@ -128,17 +132,13 @@ export function Constellation({
         />
       ) : null}
 
-      {showOverlays &&
-      showStoryTitle &&
-      storyTitle &&
-      bounds &&
-      !showInlineStoryTitle ? (
+      {showOverlays && showStoryTitle && storyTitle && bounds ? (
         <ConstellationTitle
           title={storyTitle}
           bounds={bounds}
           appearance={appearance}
-          arcFrom={titleScene?.visual.position}
-          arcTo={lastScene?.visual.position}
+          arcFrom={arcFrom}
+          arcTo={arcTo}
           storyOverlay={storyOverlay}
         />
       ) : null}
@@ -163,15 +163,6 @@ export function Constellation({
               dimmed={entry.dimmed}
               focused={entry.focused}
               controlsSlot={entry.controlsSlot}
-              storyTitleSlot={
-                showInlineStoryTitle && i === focusedSceneIndex ? (
-                  <ConstellationStoryTitleInline
-                    title={storyTitle!}
-                    appearance={appearance}
-                    storyOverlay={storyOverlay}
-                  />
-                ) : undefined
-              }
               onPreviewClick={
                 onSceneSelect && !entry.locked
                   ? () => onSceneSelect(i)

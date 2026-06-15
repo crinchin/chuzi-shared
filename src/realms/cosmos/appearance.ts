@@ -33,7 +33,7 @@ export interface ConstellationAppearance {
   titleOpacity: number;
   titleColor: string;
   titleLetterSpacing: number;
-  /** World-space lift above constellation center. */
+  /** World-space lift relative to constellation center (negative = below). */
   titleYOffset: number;
   /** Gap between focused preview controls and inline story title (px). */
   titleBelowPreviewGap: number;
@@ -75,7 +75,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   titleOpacity: 0.82,
   titleColor: "#c8dce8",
   titleLetterSpacing: 6,
-  titleYOffset: 16,
+  titleYOffset: -10,
   titleBelowPreviewGap: 6,
   titleBelowPreviewFontSize: 22,
   titleDistanceFactor: 12,
