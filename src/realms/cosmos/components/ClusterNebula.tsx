@@ -9,6 +9,8 @@ export interface ClusterNebulaProps {
   color: string;
   opacity?: number;
   particleCount?: number;
+  /** Brighter nebula when this cluster contains the focused story. */
+  highlighted?: boolean;
 }
 
 /**
@@ -21,13 +23,16 @@ export function ClusterNebula({
   color,
   opacity = 0.12,
   particleCount = 300,
+  highlighted = false,
 }: ClusterNebulaProps) {
   const pointsRef = useRef<ThreePoints>(null);
+  const resolvedOpacity = highlighted ? Math.min(opacity * 2.8, 0.28) : opacity;
+  const resolvedCount = highlighted ? Math.round(particleCount * 1.35) : particleCount;
 
   const { positions, sizes } = useMemo(() => {
-    const pos = new Float32Array(particleCount * 3);
-    const sz = new Float32Array(particleCount);
-    for (let i = 0; i < particleCount; i++) {
+    const pos = new Float32Array(resolvedCount * 3);
+    const sz = new Float32Array(resolvedCount);
+    for (let i = 0; i < resolvedCount; i++) {
       const r = Math.pow(Math.random(), 0.6) * radius;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
@@ -37,11 +42,12 @@ export function ClusterNebula({
       sz[i] = 0.4 + Math.random() * 1.2;
     }
     return { positions: pos, sizes: sz };
-  }, [particleCount, radius]);
+  }, [resolvedCount, radius]);
 
   useFrame(({ clock }) => {
     if (!pointsRef.current) return;
-    pointsRef.current.rotation.y = clock.elapsedTime * 0.008;
+    const spin = highlighted ? 0.014 : 0.008;
+    pointsRef.current.rotation.y = clock.elapsedTime * spin;
     pointsRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.003) * 0.02;
   });
 
@@ -67,21 +73,21 @@ export function ClusterNebula({
         <bufferAttribute
           attach="attributes-position"
           array={positions}
-          count={particleCount}
+          count={resolvedCount}
           itemSize={3}
         />
         <bufferAttribute
           attach="attributes-size"
           array={sizes}
-          count={particleCount}
+          count={resolvedCount}
           itemSize={1}
         />
       </bufferGeometry>
       <pointsMaterial
         color={color}
-        size={1.2}
+        size={highlighted ? 1.55 : 1.2}
         transparent
-        opacity={opacity}
+        opacity={resolvedOpacity}
         map={texture}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
