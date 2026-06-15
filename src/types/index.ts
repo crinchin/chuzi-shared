@@ -177,6 +177,7 @@ export interface StoryListItem {
   genre: string | null;
   content_rating: ContentRating | null;
   published: boolean;
+  soft_published: boolean;
   published_version: number;
   watch_starts_count: number;
   choice_clicks_count: number;
@@ -785,7 +786,18 @@ export interface UpdateStoryRequest {
   genre?: string | null;
   content_rating?: ContentRating | null;
   published?: boolean;
+  soft_published?: boolean;
   tags?: string[];
+}
+
+export type StoryVisibilityTier = "private" | "limited" | "worldwide";
+
+export function resolveStoryVisibilityTier(
+  story: Pick<StoryListItem, "published" | "soft_published">,
+): StoryVisibilityTier {
+  if (story.published) return "worldwide";
+  if (story.soft_published) return "limited";
+  return "private";
 }
 
 export interface TagListResponse {
