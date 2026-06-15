@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { AtomVisualProps } from "../../index.js";
+import { DraggableAtomGroup } from "../../DraggableAtomGroup.js";
 import {
   mergeConstellationAppearance,
   type ConstellationAppearance,
@@ -13,6 +14,7 @@ import {
 } from "./ConstellationTitle.js";
 import { StarBillboard } from "./StarBillboard.js";
 import { PublishedConstellationAura } from "./PublishedConstellationAura.js";
+import type { Vec3 } from "./layout.js";
 
 export interface ConstellationSceneEntry {
   id: string;
@@ -36,6 +38,8 @@ export interface ConstellationSceneEntry {
   focused?: boolean;
   /** Control strip slot — rendered beneath preview when focused. */
   controlsSlot?: ReactNode;
+  /** Creator can drag this star to reshape the constellation. */
+  draggable?: boolean;
 }
 
 export interface ConstellationEdgeEntry {
@@ -61,6 +65,10 @@ export interface ConstellationProps {
   /** When true and theme publishedEffect is enabled, stars/edges glow brighter. */
   published?: boolean;
   onSceneSelect?: (index: number) => void;
+  /** Live position updates while dragging a scene star. */
+  onScenePositionChange?: (sceneId: string, position: Vec3) => void;
+  /** Persisted when a drag gesture completes. */
+  onScenePositionCommit?: (sceneId: string, position: Vec3) => void;
 }
 
 /**
@@ -78,6 +86,8 @@ export function Constellation({
   showStoryTitle = true,
   published = false,
   onSceneSelect,
+  onScenePositionChange,
+  onScenePositionCommit,
 }: ConstellationProps) {
   const appearance = mergeConstellationAppearance(appearanceOverrides);
   const publishedActive = published && appearance.publishedEffect.enabled;
@@ -144,13 +154,36 @@ export function Constellation({
       ) : null}
 
       {scenes.map((entry, i) => (
-        <group key={entry.id} position={entry.visual.position}>
+        <DraggableAtomGroup
+          key={entry.id}
+          position={entry.visual.position}
+          enabled={!!entry.draggable && !!(onScenePositionChange || onScenePositionCommit)}
+          onPositionChange={
+            onScenePositionChange
+              ? (pos) => onScenePositionChange(entry.id, pos)
+              : undefined
+          }
+          onDragEnd={
+            onScenePositionCommit
+              ? (pos) => onScenePositionCommit(entry.id, pos)
+              : undefined
+          }
+          onTap={
+            onSceneSelect && !entry.locked
+              ? () => onSceneSelect(i)
+              : undefined
+          }
+        >
           <Star
             visual={{ ...entry.visual, position: [0, 0, 0] }}
             dimmed={entry.dimmed}
             locked={entry.locked}
             publishedBoost={publishedBoost}
-            onSelect={onSceneSelect ? () => onSceneSelect(i) : undefined}
+            onSelect={
+              !entry.draggable && onSceneSelect && !entry.locked
+                ? () => onSceneSelect(i)
+                : undefined
+            }
           />
 
           {showOverlays &&
@@ -171,7 +204,7 @@ export function Constellation({
               visible={showOverlays}
             />
           ) : null}
-        </group>
+        </DraggableAtomGroup>
       ))}
 
       {resolvedEdges.map(({ from, to, type }) => {

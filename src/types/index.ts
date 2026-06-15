@@ -447,6 +447,12 @@ export interface SceneTextContent {
   lines?: TextLine[];
 }
 
+export interface SceneLayoutOffset {
+  x: number;
+  y: number;
+  z: number;
+}
+
 export interface SceneListItem {
   id: string;
   story_id: string;
@@ -455,6 +461,7 @@ export interface SceneListItem {
   is_title: boolean;
   is_end: boolean;
   color: string | null;
+  layout_offset?: SceneLayoutOffset | null;
   media_id: string | null;
   alt_media_id: string | null;
   media_mode: "text" | "imagery" | "film" | null;
@@ -483,6 +490,7 @@ export interface UpdateSceneRequest {
     background_color?: string | null;
   } | null;
   color?: string | null;
+  layout_offset?: SceneLayoutOffset | null;
   is_title?: boolean;
   is_end?: boolean;
   goto_scene_id?: string | null;

@@ -75,3 +75,6 @@ export type { ClusterNebulaProps } from "./ClusterNebula.js";
 
 export { ClusterLabel } from "./ClusterLabel.js";
 export type { ClusterLabelProps } from "./ClusterLabel.js";
+
+export { DraggableAtomGroup } from "../../DraggableAtomGroup.js";
+export type { DraggableAtomGroupProps } from "../../DraggableAtomGroup.js";
