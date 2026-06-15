@@ -403,6 +403,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       director_profile_save: "Save",
       director_profile_saving: "Saving…",
       director_profile_name_required: "Name is required.",
+      director_profile_username_locked_hint:
+        "Call sign locked at enlistment — cannot be reassigned.",
       director_profile_save_failed: "Save failed",
       experience_mapping_loading: "Loading experience mapping…",
       experience_mapping_empty: "No template hierarchy available yet.",
@@ -816,6 +818,8 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       director_profile_save: "Save",
       director_profile_saving: "Saving…",
       director_profile_name_required: "Name is required.",
+      director_profile_username_locked_hint:
+        "Trail name set at first bloom — cannot be changed.",
       director_profile_save_failed: "Save failed",
       experience_mapping_loading: "Loading experience mapping…",
       experience_mapping_empty: "No template hierarchy available yet.",
@@ -1229,6 +1233,8 @@ export const FALLBACK_LEXICON: Record<string, string> = {
   director_profile_save: "Save",
   director_profile_saving: "Saving…",
   director_profile_name_required: "Name is required.",
+  director_profile_username_locked_hint:
+    "Username is set at sign up and cannot be changed.",
   director_profile_save_failed: "Save failed",
   experience_mapping_loading: "Loading experience mapping…",
   experience_mapping_empty: "No template hierarchy available yet.",
