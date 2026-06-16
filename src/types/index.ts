@@ -471,6 +471,7 @@ export interface SceneListItem {
     font_family?: string | null;
     text_color?: string | null;
     background_color?: string | null;
+    font_size?: number | null;
   } | null;
   goto_scene_id?: string | null;
   choice_end_time_seconds?: number | null;
@@ -627,6 +628,7 @@ export interface AiStoryScenePayload {
   text_color: string;
   background_color: string;
   scene_color: string | null;
+  font_size?: number | null;
 }
 
 export interface AiStoryEstimateRequest {
