@@ -8,6 +8,7 @@ import type {
 
 export * from "./credits.js";
 export * from "./chuzi-ai-prompts.js";
+export * from "./scene-text-fonts.js";
 
 export const REALM_IDS: readonly RealmId[] = ["cosmos", "wilds"] as const;
 
