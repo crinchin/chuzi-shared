@@ -1,6 +1,6 @@
 {
   "name": "@chuzi/shared",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shared types, realm config, theme tokens, API client, input layer, and realm rendering primitives for CHUZI apps",
   "type": "module",
   "sideEffects": false,

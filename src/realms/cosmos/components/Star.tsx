@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Mesh } from "three";
 import type { AtomVisualProps } from "../../index.js";
+import type { FocusEffectAppearance } from "../appearance.js";
 
 export interface StarProps {
   visual: AtomVisualProps;
@@ -12,6 +13,9 @@ export interface StarProps {
   locked?: boolean;
   /** Launched-story boost — extra saturation and lightness from theme tokens. */
   publishedBoost?: { saturationBoost: number; lightnessBoost: number };
+  /** Selected story system — intensified pulse from focusEffect tokens. */
+  focused?: boolean;
+  focusEffect?: FocusEffectAppearance;
 }
 
 /**
@@ -20,23 +24,42 @@ export interface StarProps {
  * breathe in lockstep — gives the field life without per-star animation
  * state.
  */
-export function Star({ visual, onSelect, dimmed, locked, publishedBoost }: StarProps) {
+export function Star({
+  visual,
+  onSelect,
+  dimmed,
+  locked,
+  publishedBoost,
+  focused = false,
+  focusEffect,
+}: StarProps) {
   const ref = useRef<Mesh>(null);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const phase = visual.position[0] * 0.7 + visual.position[2] * 0.3;
-    const pulseAmp = publishedBoost ? 0.08 : 0.05;
-    const pulse = 1 + Math.sin(clock.elapsedTime * 0.8 + phase) * pulseAmp;
+    const focusActive = focused && focusEffect?.enabled;
+    const pulseAmp = focusActive
+      ? focusEffect.starPulseAmplitude
+      : publishedBoost
+        ? 0.08
+        : 0.05;
+    const pulseSpeed = focusActive ? focusEffect.starPulseSpeed : 0.8;
+    const pulse = 1 + Math.sin(clock.elapsedTime * pulseSpeed + phase) * pulseAmp;
     ref.current.scale.setScalar(visual.scale * pulse);
   });
 
   const boostSat = publishedBoost?.saturationBoost ?? 0;
   const boostLight = publishedBoost?.lightnessBoost ?? 0;
-  const saturation = (dimmed || locked ? 25 : 75) + boostSat;
-  const lightness = (dimmed || locked
-    ? 25 + visual.intensity * 10
-    : 50 + visual.intensity * 25) + boostLight;
+  const focusActive = focused && focusEffect?.enabled;
+  const saturation =
+    (dimmed || locked ? 25 : 75) + boostSat + (focusActive ? 12 : 0);
+  const lightness =
+    (dimmed || locked
+      ? 25 + visual.intensity * 10
+      : 50 + visual.intensity * 25) +
+    boostLight +
+    (focusActive ? 10 : 0);
   const color = `hsl(${visual.hue}, ${saturation}%, ${lightness}%)`;
 
   const handleClick = locked

@@ -117,6 +117,8 @@ export interface ConstellationAnchorOptions {
   minGapScenes?: number;
   levelSpacing?: number;
   visualPadding?: number;
+  /** Max distance from tier center for anchor placement (tier nebula mode). */
+  maxAnchorReach?: number;
 }
 
 function sortScenesForConstellationLayout(
@@ -596,6 +598,7 @@ export function computeConstellationScenePositions(
   scenes: ConstellationLayoutScene[],
   graph: ConstellationLayoutGraph | undefined,
   anchor: Vec3 = [0, 0, 0],
+  tier?: StoryVisibilityTier,
 ): Map<string, Vec3> {
   const positions = new Map<string, Vec3>();
   const ordered = orderScenesForConstellationLayout(scenes, graph);
@@ -607,7 +610,9 @@ export function computeConstellationScenePositions(
 
   const edges = graph?.edges ?? [];
   if (edges.length > 0) {
-    return layoutFromGraphEdges(ordered, edges, root, anchor);
+    const graphPositions = layoutFromGraphEdges(ordered, edges, root, anchor);
+    if (tier) clampConstellationToTierBounds(graphPositions, tier);
+    return graphPositions;
   }
 
   positions.set(root.id, [anchor[0], anchor[1], anchor[2]]);
@@ -648,6 +653,8 @@ export function computeConstellationScenePositions(
     new Set([root.id]),
   );
 
+  if (tier) clampConstellationToTierBounds(positions, tier);
+
   return positions;
 }
 
@@ -679,6 +686,7 @@ function findConstellationAnchor(
   footprintRadius: number,
   placed: Array<{ x: number; z: number; radius: number }>,
   minGap: number,
+  maxReach?: number,
 ): Vec3 {
   if (placed.length === 0) return [0, 0, 0];
 
@@ -692,13 +700,20 @@ function findConstellationAnchor(
     radius += radiusGrowth / (2 * Math.PI);
     const cx = Math.cos(angle) * radius;
     const cz = Math.sin(angle) * radius;
-    const ok = placed.every((other) =>
-      circlesSeparated(cx, cz, footprintRadius, other.x, other.z, other.radius, minGap),
-    );
+    const withinTier =
+      maxReach == null || Math.hypot(cx, cz) + footprintRadius <= maxReach;
+    const ok =
+      withinTier &&
+      placed.every((other) =>
+        circlesSeparated(cx, cz, footprintRadius, other.x, other.z, other.radius, minGap),
+      );
     if (ok) return [cx, 0, cz];
   }
 
-  const fallback = placed.length * (minGap + footprintRadius * 2);
+  const fallback = Math.min(
+    placed.length * (minGap + footprintRadius * 2),
+    maxReach != null ? Math.max(0, maxReach - footprintRadius) : placed.length * (minGap + footprintRadius * 2),
+  );
   return [fallback, 0, 0];
 }
 
@@ -713,12 +728,18 @@ export function distributeConstellationAnchors(
   const minGapScenes = options.minGapScenes ?? COSMOS_CONSTELLATION_GAP_SCENES;
   const levelSpacing = options.levelSpacing ?? COSMOS_SCENE_LEVEL_SPACING;
   const minGap = minGapScenes * levelSpacing;
+  const maxReach = options.maxAnchorReach;
 
   const anchors = new Map<string, Vec3>();
   const placed: Array<{ x: number; z: number; radius: number }> = [];
 
   for (const item of items) {
-    const [x, , z] = findConstellationAnchor(item.footprintRadius, placed, minGap);
+    const [x, , z] = findConstellationAnchor(
+      item.footprintRadius,
+      placed,
+      minGap,
+      maxReach,
+    );
     anchors.set(item.id, [x, 0, z]);
     placed.push({ x, z, radius: item.footprintRadius });
   }
@@ -739,6 +760,9 @@ export interface ClusteredAnchorInput extends ConstellationAnchorInput {
   tier: StoryVisibilityTier;
 }
 
+/** Fixed world-space radius for each tier nebula (Shipyard / Relay / Broadcast). */
+export const TIER_NEBULA_RADIUS = 26;
+
 const CLUSTER_SEPARATION = 48;
 
 const TIER_OFFSETS: Record<StoryVisibilityTier, Vec3> = {
@@ -746,6 +770,53 @@ const TIER_OFFSETS: Record<StoryVisibilityTier, Vec3> = {
   limited: [0, 0, 0],
   worldwide: [CLUSTER_SEPARATION, 0, 0],
 };
+
+/** Clamp a world position to stay inside a tier nebula sphere. */
+export function clampPositionToTierNebula(
+  pos: Vec3,
+  tier: StoryVisibilityTier,
+): Vec3 {
+  const center = TIER_OFFSETS[tier];
+  const dx = pos[0] - center[0];
+  const dy = pos[1] - center[1];
+  const dz = pos[2] - center[2];
+  const dist = Math.hypot(dx, dy, dz);
+  if (dist <= TIER_NEBULA_RADIUS) return pos;
+  const scale = TIER_NEBULA_RADIUS / dist;
+  return [
+    center[0] + dx * scale,
+    center[1] + dy * scale,
+    center[2] + dz * scale,
+  ];
+}
+
+function clampConstellationToTierBounds(
+  positions: Map<string, Vec3>,
+  tier: StoryVisibilityTier,
+): void {
+  const tierCenter = TIER_OFFSETS[tier];
+  let maxDist = 0;
+  for (const pos of positions.values()) {
+    maxDist = Math.max(
+      maxDist,
+      Math.hypot(
+        pos[0] - tierCenter[0],
+        pos[1] - tierCenter[1],
+        pos[2] - tierCenter[2],
+      ),
+    );
+  }
+  if (maxDist <= TIER_NEBULA_RADIUS || maxDist === 0) return;
+
+  const scale = (TIER_NEBULA_RADIUS - 0.5) / maxDist;
+  for (const [id, pos] of positions) {
+    positions.set(id, [
+      tierCenter[0] + (pos[0] - tierCenter[0]) * scale,
+      tierCenter[1] + (pos[1] - tierCenter[1]) * scale,
+      tierCenter[2] + (pos[2] - tierCenter[2]) * scale,
+    ]);
+  }
+}
 
 function placeTierCluster(
   items: ClusteredAnchorInput[],
@@ -758,22 +829,21 @@ function placeTierCluster(
 } {
   const tierItems = items.filter((item) => item.tier === tier);
   const offset = TIER_OFFSETS[tier];
-  const localAnchors = distributeConstellationAnchors(tierItems, options);
+  const localAnchors = distributeConstellationAnchors(tierItems, {
+    ...options,
+    maxAnchorReach: TIER_NEBULA_RADIUS - 2,
+  });
   const anchors = new Map<string, Vec3>();
 
-  let maxReach = 10;
   for (const [id, pos] of localAnchors) {
     const shifted: Vec3 = [pos[0] + offset[0], pos[1], pos[2] + offset[2]];
     anchors.set(id, shifted);
-    const reach = Math.hypot(pos[0], pos[2]);
-    const item = tierItems.find((entry) => entry.id === id);
-    maxReach = Math.max(maxReach, reach + (item?.footprintRadius ?? 10));
   }
 
   return {
     anchors,
     center: offset,
-    radius: maxReach,
+    radius: TIER_NEBULA_RADIUS,
   };
 }
 

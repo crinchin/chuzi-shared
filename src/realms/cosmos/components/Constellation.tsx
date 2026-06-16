@@ -64,6 +64,8 @@ export interface ConstellationProps {
   showStoryTitle?: boolean;
   /** When true and theme publishedEffect is enabled, stars/edges glow brighter. */
   published?: boolean;
+  /** When true, all stars in this constellation use focusEffect pulse tokens. */
+  storyFocused?: boolean;
   onSceneSelect?: (index: number) => void;
   /** Live position updates while dragging a scene star. */
   onScenePositionChange?: (sceneId: string, position: Vec3) => void;
@@ -89,6 +91,7 @@ export function Constellation({
   showOverlays = true,
   showStoryTitle = true,
   published = false,
+  storyFocused = false,
   onSceneSelect,
   onScenePositionChange,
   onSceneDragStart,
@@ -106,6 +109,10 @@ export function Constellation({
   const edgeGlowMultiplier = publishedActive
     ? appearance.publishedEffect.edgeGlowMultiplier
     : 1;
+  const focusEffect =
+    storyFocused && appearance.focusEffect.enabled
+      ? appearance.focusEffect
+      : undefined;
   const sceneMap = new Map(scenes.map((s, i) => [s.id, { entry: s, index: i }]));
   const scenePositions = scenes.map((s) => s.visual.position);
   const bounds = computeConstellationBounds(scenePositions);
@@ -191,6 +198,8 @@ export function Constellation({
             dimmed={entry.dimmed}
             locked={entry.locked}
             publishedBoost={publishedBoost}
+            focused={storyFocused}
+            focusEffect={focusEffect}
             onSelect={
               !entry.draggable && onSceneSelect && !entry.locked
                 ? () => onSceneSelect(i)

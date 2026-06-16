@@ -22,6 +22,23 @@ export interface PublishedEffectAppearance {
   dust: PublishedDustAppearance;
 }
 
+/** Visual treatment for the currently selected story system in my-realm. */
+export interface FocusEffectAppearance {
+  enabled: boolean;
+  /** Star mesh pulse amplitude when the system is focused (0–0.5). */
+  starPulseAmplitude: number;
+  /** Star mesh pulse speed in Hz. */
+  starPulseSpeed: number;
+  /** Multiplier on focus halo shell scale. */
+  glowScale: number;
+  /** Extra opacity added to focus halo layers. */
+  glowOpacityBoost: number;
+  /** Expanding ring burst when selection changes. */
+  shockwaveEnabled: boolean;
+  /** Point light intensity at the focused anchor. */
+  pointLightIntensity: number;
+}
+
 /**
  * Constellation presentation tokens — consumed by the cosmos realm camera,
  * star billboards, and ghost title typography. Admins can override via
@@ -61,6 +78,9 @@ export interface ConstellationAppearance {
 
   /** Launched-story shimmer: brighter stars, edges, and optional dust swirl. */
   publishedEffect: PublishedEffectAppearance;
+
+  /** Selected-system pulse, halo, and shockwave in my-realm browse mode. */
+  focusEffect: FocusEffectAppearance;
 
   /** Camera — floating-in-space slide between stars. */
   cameraDefaultOffset: [number, number, number];
@@ -107,6 +127,16 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
     },
   },
 
+  focusEffect: {
+    enabled: true,
+    starPulseAmplitude: 0.22,
+    starPulseSpeed: 2.4,
+    glowScale: 1.45,
+    glowOpacityBoost: 0.12,
+    shockwaveEnabled: true,
+    pointLightIntensity: 2.8,
+  },
+
   cameraDefaultOffset: [0, 4, 12],
   cameraTargetOffset: [0, 0, 0],
   cameraSlideLerp: 0.035,
@@ -125,6 +155,12 @@ export function mergeConstellationAppearance(
         ...DEFAULT_CONSTELLATION_APPEARANCE.publishedEffect.dust,
         ...overrides.publishedEffect.dust,
       },
+    };
+  }
+  if (overrides?.focusEffect) {
+    base.focusEffect = {
+      ...DEFAULT_CONSTELLATION_APPEARANCE.focusEffect,
+      ...overrides.focusEffect,
     };
   }
   return base;

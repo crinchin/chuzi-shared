@@ -32,6 +32,8 @@ export {
   COSMOS_DEFAULT_FOOTPRINT_RADIUS,
   COSMOS_CONSTELLATION_VISUAL_PADDING,
   COSMOS_MAX_SCENE_EDGE_LENGTH,
+  TIER_NEBULA_RADIUS,
+  clampPositionToTierNebula,
 } from "./layout.js";
 export type {
   Vec3,
@@ -65,6 +67,7 @@ export type {
   ConstellationAppearance,
   PublishedEffectAppearance,
   PublishedDustAppearance,
+  FocusEffectAppearance,
 } from "../appearance.js";
 
 export { PublishedConstellationAura } from "./PublishedConstellationAura.js";
