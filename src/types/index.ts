@@ -490,6 +490,7 @@ export interface UpdateSceneRequest {
     font_family?: string | null;
     text_color?: string | null;
     background_color?: string | null;
+    font_size?: number | null;
   } | null;
   color?: string | null;
   layout_offset?: SceneLayoutOffset | null;
