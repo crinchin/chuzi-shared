@@ -284,6 +284,8 @@ export interface ChuziClient {
     storyGenerate(req: import("../types/index.js").AiStoryGenerateRequest): Promise<import("../types/index.js").AiStoryGenerateResponse>;
     sceneEstimate(req: import("../types/index.js").AiSceneEstimateRequest): Promise<import("../types/index.js").AiSceneEstimateResponse>;
     sceneGenerate(req: import("../types/index.js").AiSceneGenerateRequest): Promise<import("../types/index.js").AiSceneGenerateResponse>;
+    voiceoverEstimate(req: import("../types/index.js").VoiceoverEstimateRequest): Promise<import("../types/index.js").VoiceoverEstimateResponse>;
+    voiceoverGenerate(req: import("../types/index.js").VoiceoverGenerateRequest): Promise<import("../types/index.js").VoiceoverGenerateResponse>;
   };
 }
 
@@ -485,6 +487,28 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       sceneGenerate: (req) =>
         request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/scene/generate`, {
           body: { brief: req.brief, mode: req.mode, scene_id: req.scene_id },
+        }),
+      voiceoverEstimate: (req) =>
+        request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/voiceover/estimate`, {
+          body: {
+            scene_id: req.scene_id,
+            script_text: req.script_text,
+            script_html: req.script_html,
+            voice_prompt: req.voice_prompt,
+            previous_settings: req.previous_settings,
+            redo_feedback: req.redo_feedback,
+          },
+        }),
+      voiceoverGenerate: (req) =>
+        request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/voiceover/generate`, {
+          body: {
+            scene_id: req.scene_id,
+            script_text: req.script_text,
+            script_html: req.script_html,
+            voice_prompt: req.voice_prompt,
+            previous_settings: req.previous_settings,
+            redo_feedback: req.redo_feedback,
+          },
         }),
     },
   };
