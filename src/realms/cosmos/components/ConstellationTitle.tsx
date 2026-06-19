@@ -395,12 +395,14 @@ export function ConstellationTitle({
     />
   );
 
+  const anchorPos: [number, number, number] = arcFrom ?? titlePos;
+
   return (
     <Billboard
       position={[
-        titlePos[0],
-        titlePos[1] + appearance.titleYOffset,
-        titlePos[2],
+        anchorPos[0],
+        anchorPos[1] + appearance.titleYOffset,
+        anchorPos[2],
       ]}
     >
       <Html

@@ -95,7 +95,7 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   titleOpacity: 0.82,
   titleColor: "#c8dce8",
   titleLetterSpacing: 6,
-  titleYOffset: -10,
+  titleYOffset: -4,
   titleBelowPreviewGap: 6,
   titleBelowPreviewFontSize: 22,
   titleDistanceFactor: 12,

@@ -71,7 +71,7 @@ export const COSMOS_SCENE_BRANCH_SPACING = 1.6;
 export const COSMOS_MAX_SCENE_EDGE_LENGTH = 14;
 
 /** Minimum empty space between constellation bounds, in scene spacings. */
-export const COSMOS_CONSTELLATION_GAP_SCENES = 3;
+export const COSMOS_CONSTELLATION_GAP_SCENES = 5;
 
 /** Halo around a lone title star before scenes load. */
 export const COSMOS_DEFAULT_FOOTPRINT_RADIUS = 10;
@@ -761,9 +761,9 @@ export interface ClusteredAnchorInput extends ConstellationAnchorInput {
 }
 
 /** Fixed world-space radius for each tier nebula (Shipyard / Relay / Broadcast). */
-export const TIER_NEBULA_RADIUS = 26;
+export const TIER_NEBULA_RADIUS = 38;
 
-const CLUSTER_SEPARATION = 48;
+const CLUSTER_SEPARATION = 64;
 
 const TIER_OFFSETS: Record<StoryVisibilityTier, Vec3> = {
   private: [-CLUSTER_SEPARATION, 0, 0],
