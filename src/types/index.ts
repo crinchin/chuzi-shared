@@ -427,19 +427,6 @@ export interface PaginatedResponse<T> {
 
 export type LineType = "text" | "sound" | "image";
 
-export interface VoiceoverSettings {
-  voice_id: string;
-  engine: string;
-  voice_prompt: string;
-  ssml?: string | null;
-  script_text: string;
-}
-
-export interface VoiceoverLineMeta {
-  source: "chuzi";
-  voice_settings: VoiceoverSettings;
-}
-
 export interface TextLine {
   id: string;
   type?: LineType;
@@ -454,7 +441,6 @@ export interface TextLine {
   width_pct?: number;
   height_pct?: number;
   persist?: boolean;
-  voiceover?: VoiceoverLineMeta;
 }
 
 export interface SceneTextContent {
@@ -769,55 +755,6 @@ export interface RegisterMediaResponse extends MediaItem {
   balance: number;
 }
 
-// ── Voiceover ──
-
-export interface VoiceoverEstimateRequest {
-  story_id: string;
-  scene_id: string;
-  script_text?: string;
-  script_html?: string;
-  voice_prompt: string;
-  previous_settings?: VoiceoverSettings;
-  redo_feedback?: string;
-}
-
-export interface VoiceoverTokenEstimate {
-  input_tokens: number;
-  output_tokens: number;
-  polly_characters: number;
-  credits_needed: number;
-}
-
-export interface VoiceoverEstimateResponse {
-  estimate: VoiceoverTokenEstimate;
-  balance: CreditBalance;
-  can_afford: boolean;
-}
-
-export interface VoiceoverGenerateRequest {
-  story_id: string;
-  scene_id: string;
-  script_text?: string;
-  script_html?: string;
-  voice_prompt: string;
-  previous_settings?: VoiceoverSettings;
-  redo_feedback?: string;
-}
-
-export interface VoiceoverGenerationResult {
-  media: MediaItem;
-  voice_settings: VoiceoverSettings;
-  input_tokens: number;
-  output_tokens: number;
-  polly_characters: number;
-  credits_charged: number;
-  model_id: string;
-}
-
-export interface VoiceoverGenerateResponse {
-  generation: VoiceoverGenerationResult;
-  balance: CreditBalance;
-}
 
 export interface TranscodeRequest {
   media_id: string;
