@@ -632,12 +632,15 @@ export interface AiStoryScenePayload {
   font_size?: number | null;
 }
 
+export type AudienceAge = "4+" | "7+" | "10+" | "13+" | "17+";
+
 export interface AiStoryEstimateRequest {
   answers?: Record<string, string>;
   vibes?: string[];
   character_count?: number;
   details?: string;
   max_scenes?: number;
+  audience_age?: AudienceAge;
 }
 
 export interface AiStoryTokenEstimate {
@@ -658,6 +661,7 @@ export interface AiStoryGenerateRequest {
   character_count?: number;
   details?: string;
   max_scenes?: number;
+  audience_age?: AudienceAge;
 }
 
 export interface AiStoryGenerationResult {

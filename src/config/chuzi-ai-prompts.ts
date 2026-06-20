@@ -56,6 +56,24 @@ export const CHUZI_AI_GENERATOR_VIBES = [
 
 export type ChuziAiVibe = (typeof CHUZI_AI_GENERATOR_VIBES)[number];
 
+import type { AudienceAge } from "../types/index.js";
+
+export interface AudienceAgeOption {
+  id: AudienceAge;
+  label: string;
+  description: string;
+}
+
+export const AUDIENCE_AGE_OPTIONS: AudienceAgeOption[] = [
+  { id: "4+", label: "Ages 4+", description: "Simple words, short sentences, gentle themes." },
+  { id: "7+", label: "Ages 7+", description: "Easy reading, mild peril, playful humor." },
+  { id: "10+", label: "Ages 10+", description: "Grade-school vocabulary, some suspense allowed." },
+  { id: "13+", label: "Ages 13+", description: "Teen-level language, moderate complexity." },
+  { id: "17+", label: "Ages 17+", description: "Adult vocabulary and mature themes." },
+];
+
+export const AUDIENCE_AGE_IDS: readonly AudienceAge[] = AUDIENCE_AGE_OPTIONS.map((o) => o.id);
+
 export const CHUZI_AI_VIBE_LABELS: Record<ChuziAiVibe, string> = {
   "absurdist": "Absurdist",
   "action": "Action",
