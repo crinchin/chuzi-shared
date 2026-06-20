@@ -289,9 +289,7 @@ export function ConstellationTitle({
   if (!title.trim()) return null;
 
   const titlePos = bounds.center;
-  const boundsSpanSvg = bounds.spanX * WORLD_TO_SVG;
   const minArcSpan = Math.max(
-    boundsSpanSvg,
     300,
     estimateTitlePathWidth(
       title,
@@ -311,7 +309,6 @@ export function ConstellationTitle({
   const arcSpanNeeded = Math.max(
     minArcSpan,
     Math.abs(endOffsetX - titleOffsetX) + 48,
-    boundsSpanSvg,
   );
   const svgWidth = Math.max(
     420,

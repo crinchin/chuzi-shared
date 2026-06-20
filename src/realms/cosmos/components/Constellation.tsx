@@ -121,14 +121,8 @@ export function Constellation({
     scenes.find((s) => s.isTitle) ?? scenes[0];
   const lastScene = scenes[scenes.length - 1];
 
-  const arcSpanPositions =
-    scenePositions.length >= 2
-      ? [...scenePositions].sort((a, b) => a[0] - b[0])
-      : null;
-  const arcFrom = arcSpanPositions?.[0] ?? titleScene?.visual.position;
-  const arcTo =
-    arcSpanPositions?.[arcSpanPositions.length - 1] ??
-    lastScene?.visual.position;
+  const arcFrom = titleScene?.visual.position;
+  const arcTo = titleScene?.visual.position;
 
   const resolvedEdges: {
     from: ConstellationSceneEntry;
