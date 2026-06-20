@@ -421,7 +421,7 @@ export function ConstellationTitle({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 8,
+            gap: 4,
             marginTop: 4,
           }}
         >
@@ -433,9 +433,9 @@ export function ConstellationTitle({
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 6,
+                gap: 4,
                 maxWidth: svgWidth,
-                marginTop: 6,
+                marginTop: 2,
                 pointerEvents: "none",
               }}
             >
