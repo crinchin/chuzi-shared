@@ -101,8 +101,8 @@ export const DEFAULT_CONSTELLATION_APPEARANCE: ConstellationAppearance = {
   titleDistanceFactor: 12,
   htmlZIndexRange: [8, 0],
 
-  previewWidth: 148,
-  previewHeight: 96,
+  previewWidth: 192,
+  previewHeight: 124,
   previewOffsetY: 2.4,
   labelFontSize: 13,
   labelLetterSpacing: 1.2,
