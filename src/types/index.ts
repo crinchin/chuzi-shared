@@ -909,3 +909,45 @@ export function computeSceneVisibility(
     dimmed: !scene.is_title,
   }));
 }
+
+// ── Effects Marketplace ──
+
+export type EffectType = "sound" | "music" | "fx";
+
+export interface GenerateEffectRequest {
+  type: EffectType;
+  description: string;
+  share: boolean;
+  story_id: string;
+}
+
+export interface GenerateEffectResponse {
+  effect: EffectMarketplaceItem;
+  credits_charged: number;
+  media_url: string;
+}
+
+export interface EffectMarketplaceItem {
+  id: string;
+  type: EffectType;
+  description: string;
+  tags: string[];
+  preview_url: string;
+  media_url: string;
+  usage_count: number;
+  shared: boolean;
+  creator: {
+    id: string;
+    name: string;
+  } | null;
+  created_at: string;
+}
+
+export interface EffectMarketplaceResponse {
+  data: EffectMarketplaceItem[];
+  meta: {
+    total: number;
+    page: number;
+    per_page: number;
+  };
+}

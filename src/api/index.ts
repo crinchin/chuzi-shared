@@ -288,6 +288,10 @@ export interface ChuziClient {
     sceneEstimate(req: import("../types/index.js").AiSceneEstimateRequest): Promise<import("../types/index.js").AiSceneEstimateResponse>;
     sceneGenerate(req: import("../types/index.js").AiSceneGenerateRequest): Promise<import("../types/index.js").AiSceneGenerateResponse>;
   };
+  effects: {
+    generate(req: import("../types/index.js").GenerateEffectRequest): Promise<import("../types/index.js").GenerateEffectResponse>;
+    marketplace(opts?: { tags?: string; type?: string; page?: number; signal?: AbortSignal }): Promise<import("../types/index.js").EffectMarketplaceResponse>;
+  };
 }
 
 /**
@@ -492,6 +496,16 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
         request("POST", `/api/v1/ai/stories/${encodeURIComponent(req.story_id)}/scene/generate`, {
           body: { brief: req.brief, mode: req.mode, scene_id: req.scene_id },
         }),
+    },
+    effects: {
+      generate: (req) => request("POST", "/api/v1/effects/generate", { body: req }),
+      marketplace: (opts) => {
+        const query: Record<string, string> = {};
+        if (opts?.tags) query.tags = opts.tags;
+        if (opts?.type) query.type = opts.type;
+        if (opts?.page) query.page = String(opts.page);
+        return request("GET", "/api/v1/effects/marketplace", { ...opts, query });
+      },
     },
   };
 }
