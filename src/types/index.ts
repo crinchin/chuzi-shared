@@ -425,7 +425,7 @@ export interface PaginatedResponse<T> {
 
 // ── Scenes ──
 
-export type LineType = "text" | "sound" | "image";
+export type LineType = "text" | "sound" | "image" | "video";
 
 export interface TextLine {
   id: string;
