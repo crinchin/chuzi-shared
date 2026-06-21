@@ -204,6 +204,9 @@ export interface ChuziClient {
     create(req: CreateStoryRequest): Promise<{ data: StoryListItem }>;
     update(id: string, req: UpdateStoryRequest): Promise<{ data: StoryListItem }>;
     destroy(id: string): Promise<void>;
+    jettison(id: string): Promise<{ data: StoryListItem }>;
+    unjettison(id: string): Promise<{ data: StoryListItem }>;
+    purgeJettisoned(): Promise<void>;
   };
   tags: {
     index(opts?: { signal?: AbortSignal; q?: string }): Promise<TagListResponse>;
@@ -350,6 +353,9 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       create: (req) => request("POST", "/api/v1/stories", { body: req }),
       update: (id, req) => request("PATCH", `/api/v1/stories/${encodeURIComponent(id)}`, { body: req }),
       destroy: (id) => request("DELETE", `/api/v1/stories/${encodeURIComponent(id)}`),
+      jettison: (id) => request("POST", `/api/v1/stories/${encodeURIComponent(id)}/jettison`),
+      unjettison: (id) => request("POST", `/api/v1/stories/${encodeURIComponent(id)}/unjettison`),
+      purgeJettisoned: () => request("DELETE", "/api/v1/stories/jettisoned"),
     },
     tags: {
       index: (opts) =>

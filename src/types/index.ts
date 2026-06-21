@@ -184,6 +184,7 @@ export interface StoryListItem {
   scenes_count: number;
   choices_count: number;
   tags: string[];
+  jettisoned_at: string | null;
   creator: {
     id: string;
     name: string;
@@ -806,6 +807,18 @@ export function resolveStoryVisibilityTier(
   if (story.published) return "worldwide";
   if (story.soft_published) return "limited";
   return "private";
+}
+
+export function isStoryJettisoned(story: Pick<StoryListItem, "jettisoned_at">): boolean {
+  return story.jettisoned_at != null;
+}
+
+export function jettisonDaysRemaining(story: Pick<StoryListItem, "jettisoned_at">): number {
+  if (!story.jettisoned_at) return 0;
+  const jettDate = new Date(story.jettisoned_at).getTime();
+  const expiresAt = jettDate + 7 * 24 * 60 * 60 * 1000;
+  const remaining = expiresAt - Date.now();
+  return Math.max(0, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
 }
 
 export interface TagListResponse {
