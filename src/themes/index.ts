@@ -12,6 +12,12 @@ export interface RealmThemeTokens {
   text: string;
   muted: string;
   effectLine: string;
+  textLine: string;
+  videoLine: string;
+  soundLine: string;
+  musicLine: string;
+  imageLine: string;
+  choiceLine: string;
 }
 
 export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
@@ -23,6 +29,12 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     text: "#e8f0ff",
     muted: "rgba(232, 240, 255, 0.65)",
     effectLine: "#ffb347",
+    textLine: "#7eb8ff",
+    videoLine: "#ff7eb8",
+    soundLine: "#ffb347",
+    musicLine: "#ffd747",
+    imageLine: "#47ffc4",
+    choiceLine: "#f5c455",
   },
   wilds: {
     bgDeep: "#0d120c",
@@ -32,6 +44,12 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     text: "#eef6ea",
     muted: "rgba(238, 246, 234, 0.7)",
     effectLine: "#b78aff",
+    textLine: "#7bc96f",
+    videoLine: "#e87bc9",
+    soundLine: "#b78aff",
+    musicLine: "#d4a0ff",
+    imageLine: "#7affb3",
+    choiceLine: "#b8e86f",
   },
 };
 
