@@ -18,6 +18,7 @@ export interface RealmThemeTokens {
   musicLine: string;
   imageLine: string;
   choiceLine: string;
+  creditsLine: string;
 }
 
 export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
@@ -35,6 +36,7 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     musicLine: "#ffd747",
     imageLine: "#47ffc4",
     choiceLine: "#f5c455",
+    creditsLine: "#c8a0e8",
   },
   wilds: {
     bgDeep: "#0d120c",
@@ -50,6 +52,7 @@ export const THEME_TOKENS: Record<RealmId, RealmThemeTokens> = {
     musicLine: "#d4a0ff",
     imageLine: "#7affb3",
     choiceLine: "#b8e86f",
+    creditsLine: "#d4a0ff",
   },
 };
 
