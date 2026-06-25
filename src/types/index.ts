@@ -426,7 +426,15 @@ export interface PaginatedResponse<T> {
 
 // ── Scenes ──
 
-export type LineType = "text" | "sound" | "image" | "video" | "credits";
+export type LineType = "text" | "sound" | "image" | "video" | "credits" | "logic";
+
+export interface LogicOperation {
+  mode: "set" | "evaluate";
+  variable: string;
+  value?: string;
+  operator?: string;
+  then_layer_ids?: string[];
+}
 
 export interface TextLine {
   id: string;
@@ -442,6 +450,7 @@ export interface TextLine {
   width_pct?: number;
   height_pct?: number;
   persist?: boolean;
+  logic?: LogicOperation;
 }
 
 export interface SceneTextContent {
