@@ -35,8 +35,8 @@ export function computeConstellationBounds(
 }
 
 export interface ConstellationStoryOverlay {
-  /** Localized prefix, e.g. "Chosen by". */
-  chosenByPrefix: string;
+  /** Localized prefix, e.g. "Chosen by". Omitted for system overlay mode. */
+  chosenByPrefix?: string;
   directorName?: string | null;
   directorAvatarUrl?: string | null;
   /** Procedural avatar when no uploaded photo (e.g. constellation seal). */
@@ -180,7 +180,7 @@ export function ConstellationStoryTitleInline({
         >
           {hasDirector ? (
             <DirectorCredit
-              prefix={storyOverlay!.chosenByPrefix}
+              prefix={storyOverlay!.chosenByPrefix ?? ""}
               name={storyOverlay!.directorName!}
               avatarUrl={storyOverlay!.directorAvatarUrl ?? null}
               avatarFallback={storyOverlay!.directorAvatarFallback}
@@ -465,7 +465,7 @@ export function ConstellationTitle({
             >
               {hasDirector ? (
                 <DirectorCredit
-                  prefix={storyOverlay!.chosenByPrefix}
+                  prefix={storyOverlay!.chosenByPrefix ?? ""}
                   name={storyOverlay!.directorName!}
                   avatarUrl={storyOverlay!.directorAvatarUrl ?? null}
                   avatarFallback={storyOverlay!.directorAvatarFallback}
