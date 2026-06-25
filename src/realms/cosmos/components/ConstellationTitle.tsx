@@ -50,6 +50,12 @@ export interface ConstellationStoryOverlay {
   onEditClick?: () => void;
   /** Accessible label for the editable title control. */
   editAriaLabel?: string;
+  /** Published version number (e.g. 3). */
+  publishedVersion?: number | null;
+  /** Label for the publish button. */
+  publishLabel?: string;
+  /** Callback when publish button is clicked. */
+  onPublish?: () => void;
 }
 
 export interface ConstellationTitleProps {
@@ -179,6 +185,12 @@ export function ConstellationStoryTitleInline({
               separator={storyOverlay!.ratingGenreSeparator ?? " · "}
             />
           ) : null}
+
+          <PublishMetaLine
+            publishedVersion={storyOverlay!.publishedVersion}
+            publishLabel={storyOverlay!.publishLabel}
+            onPublish={storyOverlay!.onPublish}
+          />
         </div>
       ) : null}
     </div>
@@ -452,6 +464,12 @@ export function ConstellationTitle({
                   separator={storyOverlay!.ratingGenreSeparator ?? " · "}
                 />
               ) : null}
+
+              <PublishMetaLine
+                publishedVersion={storyOverlay!.publishedVersion}
+                publishLabel={storyOverlay!.publishLabel}
+                onPublish={storyOverlay!.onPublish}
+              />
             </div>
           ) : null}
         </div>
@@ -562,6 +580,67 @@ function RatingGenreLine({
           {part}
         </span>
       ))}
+    </div>
+  );
+}
+
+function PublishMetaLine({
+  publishedVersion,
+  publishLabel,
+  onPublish,
+}: {
+  publishedVersion?: number | null;
+  publishLabel?: string;
+  onPublish?: () => void;
+}) {
+  const hasVersion = publishedVersion != null && publishedVersion > 0;
+  const hasPublish = !!(onPublish && publishLabel);
+  if (!hasVersion && !hasPublish) return null;
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        marginTop: 4,
+        pointerEvents: "auto",
+      }}
+    >
+      {hasPublish ? (
+        <button
+          type="button"
+          onClick={onPublish}
+          style={{
+            background: "rgba(126,184,255,0.12)",
+            border: "1px solid rgba(126,184,255,0.45)",
+            borderRadius: 12,
+            padding: "3px 10px",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "rgba(232,240,255,0.9)",
+            cursor: "pointer",
+            backdropFilter: "blur(4px)",
+            transition: "border-color 200ms, background 200ms",
+          }}
+        >
+          {publishLabel}
+        </button>
+      ) : null}
+      {hasVersion ? (
+        <span
+          style={{
+            fontSize: 10,
+            letterSpacing: 0.5,
+            color: "rgba(232,240,255,0.5)",
+            textTransform: "uppercase",
+          }}
+        >
+          v{publishedVersion}
+        </span>
+      ) : null}
     </div>
   );
 }
