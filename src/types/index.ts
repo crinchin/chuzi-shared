@@ -185,6 +185,8 @@ export interface StoryListItem {
   choices_count: number;
   tags: string[];
   jettisoned_at: string | null;
+  is_system: boolean;
+  system_story_key?: string | null;
   creator: {
     id: string;
     name: string;
@@ -222,6 +224,7 @@ export interface CatalogResponse {
     creator_avatars: Record<string, string>;
     coverboxes: Record<string, string | null>;
     progress: Record<string, StoryProgress>;
+    system_story_ids: string[];
   };
 }
 
@@ -231,6 +234,7 @@ export interface MineResponse {
   progress?: Record<string, StoryProgress>;
   meta: {
     coverboxes: Record<string, string | null>;
+    system_story_ids?: string[];
   };
 }
 
@@ -808,6 +812,12 @@ export interface UpdateStoryRequest {
   tags?: string[];
 }
 
+export interface CreateSystemStoryRequest {
+  title: string;
+  description?: string | null;
+  system_story_key?: string | null;
+}
+
 export type StoryVisibilityTier = "private" | "limited" | "worldwide";
 
 export function resolveStoryVisibilityTier(
@@ -820,6 +830,10 @@ export function resolveStoryVisibilityTier(
 
 export function isStoryJettisoned(story: Pick<StoryListItem, "jettisoned_at">): boolean {
   return story.jettisoned_at != null;
+}
+
+export function isSystemStory(story: Pick<StoryListItem, "is_system">): boolean {
+  return !!story.is_system;
 }
 
 export function jettisonDaysRemaining(story: Pick<StoryListItem, "jettisoned_at">): number {

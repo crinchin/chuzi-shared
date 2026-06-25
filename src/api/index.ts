@@ -8,6 +8,7 @@ import type {
   CreateSceneActionRequest,
   CreateSceneRequest,
   CreateStoryRequest,
+  CreateSystemStoryRequest,
   EngagementResponse,
   GenerateImageRequest,
   GenerateImageResponse,
@@ -276,6 +277,9 @@ export interface ChuziClient {
     credits: {
       grant(req: GrantCreditsRequest): Promise<GrantCreditsResponse>;
     };
+    systemStories: {
+      create(req: CreateSystemStoryRequest): Promise<StoryListItem>;
+    };
   };
   ai: {
     generateImage(req: GenerateImageRequest): Promise<GenerateImageResponse>;
@@ -471,6 +475,12 @@ export function createChuziClient(config: ChuziClientConfig): ChuziClient {
       credits: {
         grant: (req) =>
           request("POST", "/api/v1/admin/credits/grant", { body: req }),
+      },
+      systemStories: {
+        create: (req) =>
+          request<{ data: StoryListItem }>("POST", "/api/v1/admin/system-stories", { body: req }).then(
+            (res) => res.data,
+          ),
       },
     },
     ai: {

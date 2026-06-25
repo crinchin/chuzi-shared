@@ -56,6 +56,10 @@ export interface ConstellationStoryOverlay {
   publishLabel?: string;
   /** Callback when publish button is clicked. */
   onPublish?: () => void;
+  /** Standard creator metadata vs platform system story (version only). */
+  overlayMode?: "standard" | "system";
+  /** Prefix before version badge, e.g. "Version". */
+  publishedVersionLabel?: string;
 }
 
 export interface ConstellationTitleProps {
@@ -122,13 +126,18 @@ export function ConstellationStoryTitleInline({
   const arcPath = `M ${arcStartX} ${arcY} Q ${arcMidX} ${arcPeak} ${arcEndX} ${arcY}`;
 
   const editable = !!(storyOverlay?.editable && storyOverlay.onEditClick);
-  const hasDirector = !!(
+  const isSystemOverlay = storyOverlay?.overlayMode === "system";
+  const hasDirector = !isSystemOverlay && !!(
     storyOverlay?.directorName && storyOverlay.directorName.trim()
   );
-  const hasRatingGenre = !!(
+  const hasRatingGenre = !isSystemOverlay && !!(
     storyOverlay?.contentRating || storyOverlay?.genre
   );
-  const showOverlay = hasDirector || hasRatingGenre;
+  const hasVersion = storyOverlay?.publishedVersion != null && storyOverlay!.publishedVersion! > 0;
+  const hasPublish = !!(storyOverlay?.onPublish && storyOverlay.publishLabel);
+  const showOverlay = isSystemOverlay
+    ? hasVersion || hasPublish
+    : hasDirector || hasRatingGenre || hasVersion || hasPublish;
 
   return (
     <div
@@ -188,6 +197,7 @@ export function ConstellationStoryTitleInline({
 
           <PublishMetaLine
             publishedVersion={storyOverlay!.publishedVersion}
+            publishedVersionLabel={storyOverlay!.publishedVersionLabel}
             publishLabel={storyOverlay!.publishLabel}
             onPublish={storyOverlay!.onPublish}
           />
@@ -377,13 +387,18 @@ export function ConstellationTitle({
   }
 
   const editable = !!(storyOverlay?.editable && storyOverlay.onEditClick);
-  const hasDirector = !!(
+  const isSystemOverlay = storyOverlay?.overlayMode === "system";
+  const hasDirector = !isSystemOverlay && !!(
     storyOverlay?.directorName && storyOverlay.directorName.trim()
   );
-  const hasRatingGenre = !!(
+  const hasRatingGenre = !isSystemOverlay && !!(
     storyOverlay?.contentRating || storyOverlay?.genre
   );
-  const showOverlay = hasDirector || hasRatingGenre;
+  const hasVersion = storyOverlay?.publishedVersion != null && storyOverlay!.publishedVersion! > 0;
+  const hasPublish = !!(storyOverlay?.onPublish && storyOverlay.publishLabel);
+  const showOverlay = isSystemOverlay
+    ? hasVersion || hasPublish
+    : hasDirector || hasRatingGenre || hasVersion || hasPublish;
 
   const titleControl = (
     <StoryTitleArcSvg
@@ -467,6 +482,7 @@ export function ConstellationTitle({
 
               <PublishMetaLine
                 publishedVersion={storyOverlay!.publishedVersion}
+                publishedVersionLabel={storyOverlay!.publishedVersionLabel}
                 publishLabel={storyOverlay!.publishLabel}
                 onPublish={storyOverlay!.onPublish}
               />
@@ -586,16 +602,22 @@ function RatingGenreLine({
 
 function PublishMetaLine({
   publishedVersion,
+  publishedVersionLabel,
   publishLabel,
   onPublish,
 }: {
   publishedVersion?: number | null;
+  publishedVersionLabel?: string;
   publishLabel?: string;
   onPublish?: () => void;
 }) {
   const hasVersion = publishedVersion != null && publishedVersion > 0;
   const hasPublish = !!(onPublish && publishLabel);
   if (!hasVersion && !hasPublish) return null;
+
+  const versionText = publishedVersionLabel
+    ? `${publishedVersionLabel} v${publishedVersion}`
+    : `v${publishedVersion}`;
 
   return (
     <div
@@ -638,7 +660,7 @@ function PublishMetaLine({
             textTransform: "uppercase",
           }}
         >
-          v{publishedVersion}
+          {versionText}
         </span>
       ) : null}
     </div>
