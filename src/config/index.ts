@@ -430,7 +430,7 @@ export const REALMS: Record<RealmId, RealmDefinition> = {
       hud_delete_control: "Jettison",
       hud_publish_control: "Launch",
       hud_launch_control: "Launch",
-      editor_publish_story: "Release",
+      editor_publish_story: "Promote",
       viewer_loading: "Loading transmission…",
       viewer_preparing: "Spooling media…",
       viewer_close: "Exit",
