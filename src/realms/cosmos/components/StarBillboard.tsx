@@ -41,13 +41,10 @@ export function StarBillboard({
   if (!visible) return null;
 
   if (labelOnly && label) {
-    const labelOpacity = focused ? 1 : dimmed ? 0.45 : 0.78;
     return (
       <Html
-        position={[0, appearance.previewOffsetY * 0.35, 0]}
+        position={[0, 2.6, 0]}
         center
-        transform
-        distanceFactor={appearance.billboardDistanceFactor * 1.35}
         zIndexRange={appearance.htmlZIndexRange}
         occlude={false}
         style={{ pointerEvents: "none", userSelect: "none" }}
@@ -55,17 +52,24 @@ export function StarBillboard({
         <div
           style={{
             fontFamily: "'Inter', sans-serif",
-            fontSize: appearance.labelFontSize,
+            fontSize: focused ? "15px" : "13px",
             fontWeight: 700,
-            letterSpacing: appearance.labelLetterSpacing,
+            letterSpacing: "0.05em",
             textTransform: "uppercase",
-            color: `rgba(232,240,255,${labelOpacity})`,
+            color: focused ? "#eef4ff" : dimmed ? "rgba(210,220,240,0.82)" : "#e8f0ff",
             textAlign: "center",
-            textShadow:
-              "0 0 14px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.3)",
+            padding: focused ? "6px 14px" : "5px 12px",
+            borderRadius: 6,
+            background: focused ? "rgba(8,18,36,0.96)" : "rgba(4,10,20,0.9)",
+            border: focused
+              ? "1px solid rgba(126,184,255,0.65)"
+              : "1px solid rgba(126,184,255,0.32)",
+            boxShadow: focused
+              ? "0 0 20px rgba(126,184,255,0.35), 0 4px 18px rgba(0,0,0,0.9)"
+              : "0 2px 14px rgba(0,0,0,0.85)",
             whiteSpace: "nowrap",
             lineHeight: 1.2,
-            maxWidth: appearance.labelMaxWidth,
+            maxWidth: 240,
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}
