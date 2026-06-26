@@ -670,6 +670,28 @@ export function constellationFootprintRadius(
   return maxReach;
 }
 
+const TITLE_ARC_WORLD_SCALE = 58;
+
+/** World-space radius reserved for arched constellation title typography. */
+export function estimateConstellationTitleFootprintRadius(
+  title: string,
+  sceneFootprint: number = COSMOS_DEFAULT_FOOTPRINT_RADIUS,
+): number {
+  const trimmed = title.trim();
+  if (!trimmed) return sceneFootprint;
+
+  const fontSize = 34;
+  const letterSpacing = 6;
+  const glyphWidth = fontSize * 0.62;
+  const chars = trimmed.length;
+  const pathWidthSvg =
+    chars * glyphWidth + Math.max(0, chars - 1) * letterSpacing + 56;
+  const titleRadius =
+    pathWidthSvg / TITLE_ARC_WORLD_SCALE / 2 + COSMOS_CONSTELLATION_VISUAL_PADDING;
+
+  return Math.max(sceneFootprint, titleRadius);
+}
+
 function circlesSeparated(
   ax: number,
   az: number,

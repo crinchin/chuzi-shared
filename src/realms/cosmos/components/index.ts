@@ -23,6 +23,7 @@ export {
   distributeClusteredConstellationAnchors,
   computeConstellationScenePositions,
   constellationFootprintRadius,
+  estimateConstellationTitleFootprintRadius,
   COSMOS_SCENE_LEVEL_SPACING,
   COSMOS_BRANCH_SIBLING_SPACING,
   COSMOS_MIN_NODE_CLEARANCE,
