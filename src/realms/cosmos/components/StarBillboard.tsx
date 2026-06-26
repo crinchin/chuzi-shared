@@ -16,6 +16,8 @@ export interface StarBillboardProps {
   storyTitleSlot?: ReactNode;
   /** Focus this star when the preview card is clicked. */
   onPreviewClick?: () => void;
+  /** Compact text-only label beside the star (no preview card). */
+  labelOnly?: boolean;
 }
 
 /**
@@ -34,8 +36,45 @@ export function StarBillboard({
   controlsSlot,
   storyTitleSlot,
   onPreviewClick,
+  labelOnly = false,
 }: StarBillboardProps) {
   if (!visible) return null;
+
+  if (labelOnly && label) {
+    const labelOpacity = focused ? 1 : dimmed ? 0.45 : 0.78;
+    return (
+      <Html
+        position={[0, appearance.previewOffsetY * 0.35, 0]}
+        center
+        transform
+        distanceFactor={appearance.billboardDistanceFactor * 1.35}
+        zIndexRange={appearance.htmlZIndexRange}
+        occlude={false}
+        style={{ pointerEvents: "none", userSelect: "none" }}
+      >
+        <div
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: appearance.labelFontSize,
+            fontWeight: 700,
+            letterSpacing: appearance.labelLetterSpacing,
+            textTransform: "uppercase",
+            color: `rgba(232,240,255,${labelOpacity})`,
+            textAlign: "center",
+            textShadow:
+              "0 0 14px rgba(0,0,0,0.95), 0 2px 10px rgba(0,0,0,0.95), 0 0 6px rgba(126,184,255,0.3)",
+            whiteSpace: "nowrap",
+            lineHeight: 1.2,
+            maxWidth: appearance.labelMaxWidth,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {label}
+        </div>
+      </Html>
+    );
+  }
 
   const borderColor = focused
     ? "rgba(126,184,255,0.75)"

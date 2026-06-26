@@ -38,6 +38,8 @@ export interface ConstellationSceneEntry {
   focused?: boolean;
   /** Control strip slot — rendered beneath preview when focused. */
   controlsSlot?: ReactNode;
+  /** Compact text label only — no preview card (nebula browse). */
+  labelOnly?: boolean;
   /** Creator can drag this star to reshape the constellation. */
   draggable?: boolean;
 }
@@ -202,7 +204,10 @@ export function Constellation({
           />
 
           {showOverlays &&
-          (entry.label || entry.previewImageUrl || entry.previewContent) ? (
+          (entry.labelOnly ||
+            entry.label ||
+            entry.previewImageUrl ||
+            entry.previewContent) ? (
             <StarBillboard
               label={entry.label ?? ""}
               appearance={appearance}
@@ -210,6 +215,7 @@ export function Constellation({
               previewContent={entry.previewContent}
               dimmed={entry.dimmed}
               focused={entry.focused}
+              labelOnly={entry.labelOnly}
               controlsSlot={entry.controlsSlot}
               onPreviewClick={
                 onSceneSelect && !entry.locked

@@ -24,23 +24,28 @@ export function ClusterLabel({
   return (
     <Billboard position={[position[0], labelY, position[2]]} follow>
       <Html
-        transform
-        distanceFactor={highlighted ? 52 : 45}
+        center
+        distanceFactor={highlighted ? 38 : 32}
         style={{ pointerEvents: "none" }}
       >
         <div
           style={{
+            display: "inline-block",
+            width: "max-content",
+            maxWidth: "min(90vw, 420px)",
             fontFamily: "'Inter', sans-serif",
-            fontSize: highlighted ? "18px" : "14px",
+            fontSize: highlighted ? "17px" : "13px",
             fontWeight: highlighted ? 700 : 600,
-            letterSpacing: "0.35em",
+            letterSpacing: "0.1em",
             textTransform: "uppercase",
-            color: highlighted ? color : color,
+            color,
             textShadow: highlighted
               ? `0 0 8px ${color}, 0 0 20px ${color}, 0 0 40px ${color}, 0 0 64px ${color}80`
               : `0 0 12px ${color}, 0 0 24px ${color}40`,
             filter: highlighted ? "brightness(1.35) saturate(1.4)" : undefined,
             whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
             userSelect: "none",
             textAlign: "center",
           }}

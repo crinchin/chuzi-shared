@@ -131,16 +131,26 @@ export function DraggableAtomGroup({
     [onDragEnd, onTap],
   );
 
+  const tapTarget = enabled || !!onTap;
+
   return (
     <group position={position}>
-      {enabled ? (
+      {tapTarget ? (
         <mesh
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onPointerDown={enabled ? handlePointerDown : undefined}
+          onPointerMove={enabled ? handlePointerMove : undefined}
+          onPointerUp={enabled ? handlePointerUp : undefined}
+          onPointerLeave={enabled ? handlePointerUp : undefined}
+          onClick={
+            !enabled && onTap
+              ? (e) => {
+                  e.stopPropagation();
+                  onTap();
+                }
+              : undefined
+          }
         >
-          <sphereGeometry args={[0.85, 12, 12]} />
+          <sphereGeometry args={[enabled ? 0.85 : 1.1, 12, 12]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       ) : null}

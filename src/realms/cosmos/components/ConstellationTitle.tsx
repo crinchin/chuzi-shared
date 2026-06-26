@@ -312,7 +312,7 @@ export function ConstellationTitle({
 
   const titlePos = bounds.center;
   const minArcSpan = Math.max(
-    300,
+    120,
     estimateTitlePathWidth(
       title,
       appearance.titleFontSize,
@@ -333,7 +333,7 @@ export function ConstellationTitle({
     Math.abs(endOffsetX - titleOffsetX) + 48,
   );
   const svgWidth = Math.max(
-    420,
+    minArcSpan + ARC_HORIZONTAL_PAD * 2,
     Math.ceil(arcSpanNeeded + ARC_HORIZONTAL_PAD * 2),
   );
   const svgHeight = 110;
